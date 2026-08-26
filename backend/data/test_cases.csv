@@ -1,0 +1,7 @@
+slug,input,expected,is_sample
+two-sum,"[[2, 7, 11, 15], 9]","[0, 1]",true
+two-sum,"[[3, 2, 4], 6]","[1, 2]",false
+two-sum,"[[3, 3], 6]","[0, 1]",false
+reverse-string,"[""hello""]","""olleh""",true
+reverse-string,"[""""]","""""",false
+reverse-string,"[""ab""]","""ba""",false

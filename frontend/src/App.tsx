@@ -1,29 +1,38 @@
-// import { useState } from 'react'
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import './App.css'
+// routing. this is done for you - add a <Route> here when you add a page.
 
-import { Home, Profile, Question } from './design';
+import { Navigate, Route, Routes } from 'react-router-dom'
+import type { ReactNode } from 'react'
+import NavBar from './components/NavBar'
+import { useAuth } from './auth/AuthContext'
+import Home from './pages/Home'
+import Login from './pages/Login'
+import Signup from './pages/Signup'
+import Problems from './pages/Problems'
+import Problem from './pages/Problem'
+import Shop from './pages/Shop'
+import Profile from './pages/Profile'
 
-function App() {
+// wraps pages that need a login. kicks you to /login if you're not
+function RequireAuth({ children }: { children: ReactNode }) {
+  const { me, loading } = useAuth()
+  if (loading) return <p>loading...</p>
+  if (!me) return <Navigate to="/login" replace />
+  return children
+}
 
+export default function App() {
   return (
     <>
-      <section>
-        <div>
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/question" element={<Question />} />
-            </Routes>
-          </BrowserRouter>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
+      <NavBar />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/problems" element={<RequireAuth><Problems /></RequireAuth>} />
+        <Route path="/problems/:id" element={<RequireAuth><Problem /></RequireAuth>} />
+        <Route path="/shop" element={<RequireAuth><Shop /></RequireAuth>} />
+        <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
+      </Routes>
     </>
   )
 }
-
-export default App

@@ -5,8 +5,11 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-COPY pyproject.toml README.md main.py ./
+# deps first so docker caches this layer between code changes
+COPY pyproject.toml README.md ./
 RUN pip install --no-cache-dir .
+
+COPY . .
 
 EXPOSE 8000
 
