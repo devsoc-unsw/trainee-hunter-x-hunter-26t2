@@ -1,0 +1,7 @@
+slug,name,difficulty,function_name,details,starter_code
+two-sum,Two Sum,easy,two_sum,"Given a list of numbers and a target, return the indices of the two numbers that add up to the target. There is exactly one answer.","def two_sum(nums, target):
+    pass
+"
+reverse-string,Reverse String,easy,reverse_string,"Given a string, return it reversed.","def reverse_string(s):
+    pass
+"

@@ -1,10 +1,28 @@
 [project]
 name = "backend"
 version = "0.1.0"
-description = "Add your description here"
+description = "Trainee Hunter API"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "fastapi[standard]>=0.139.0",
     "psycopg[binary]>=3.2.0",
+    "bcrypt>=4.2.0",
 ]
+
+# we're an app not a library, so there's nothing to package - `pip install .`
+# in the Dockerfile just pulls the deps, the code comes from COPY
+[tool.setuptools]
+py-modules = []
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.24.0",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+# so tests can `import security` etc without any path faffing
+pythonpath = ["."]
