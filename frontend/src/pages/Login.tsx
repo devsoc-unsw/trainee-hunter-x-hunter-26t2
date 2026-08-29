@@ -28,6 +28,8 @@ export default function Login() {
         <h2 className="text-xl text-slate-500">It's great to see you!</h2>
       </div>
 
+
+
       <form onSubmit={handleSubmit} className="auth-form">
         <div className="mb-2 flex items-centre gap-3 w-full bg-slate-50
         border-2 border-slate-200 rounded-full p-3 text-slate-400
