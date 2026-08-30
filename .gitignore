@@ -40,3 +40,7 @@ pnpm-debug.log*
 # claude code - settings.json is shared with the team, settings.local.json is
 # your own machine's permissions and shouldn't be committed
 .claude/
+
+# claude working files - local only
+CLAUDE.md
+.handoff/
