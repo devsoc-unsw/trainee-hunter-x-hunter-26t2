@@ -16,7 +16,6 @@ export default function Home() {
             </div>
             <Problems />
 
-{/* why does EVERYTHING redirect to login */}
             <Link to="/problems"  className= "p-3 bg-lime-600 text-white font-bold rounded-xl hover:bg-lime-700">
             View All Problems
             </Link>
@@ -24,12 +23,9 @@ export default function Home() {
 
 
         <div className="basis-1/3">
-            <h1>home page :3</h1>
-            <p>meow</p>
-            
-            <Link to="/profile">
-                <button type="button">TEMP: link to profile</button>
-            </Link>
+            <div className="bg-red-100">
+                keyboard here
+            </div>
         </div>
     </div>
     );

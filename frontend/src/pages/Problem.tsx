@@ -79,8 +79,12 @@ export default function Problem() {
 
         </div>
         {/* this and run in the same 'header' above the code */}
+        {/* needa style code editor.  */}
         
-        <CodeEditor value={code} onChange={setCode} />
+        <div className="border-2 border-slate-200 rounded-xl">
+          <CodeEditor value={code} onChange={setCode}/>
+          {/* idk how to make this longer */}
+        </div>
 
         <div>
           {/* dont kniow what i need the div for but resiults go here */}
