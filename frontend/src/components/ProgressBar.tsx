@@ -4,6 +4,10 @@
 export default function ProgressBar() {
     // const { me } = useAuth()
 
+    // =========================================================================
+    // !!! HARDCODED DUMMY DATA !!! the backend has no per-difficulty stats
+    // endpoint yet - derive from listQuestions() or extend the backend later
+    // =========================================================================
     const stats = {
     solved: 3,
     total: 4041,

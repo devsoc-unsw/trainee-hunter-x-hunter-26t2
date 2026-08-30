@@ -1,14 +1,16 @@
 import { Link } from 'react-router-dom';
 import Problems from './Problems';
+import { useAuth } from '../auth/AuthContext';
 
 export default function Home() {
+    const { me } = useAuth()
     return (
     <div className="m-6 flex flex-row">
         {/* im gonna need a header here but thats an issue for future me */}
         <div className="basis-2/3">
             <div className="mb-6">
                 <h1 className="text-3xl font-black text-slate-900 tracking-tight">
-                Hi there, <span className="text-lime-600 uppercase">usernameee :3</span>
+                Hi there, <span className="text-lime-600 uppercase">{me?.username ?? 'stranger'}</span>
                 </h1>
                 <h2 className="text-xl text-slate-500 mt-1">
                 ready to bloom?

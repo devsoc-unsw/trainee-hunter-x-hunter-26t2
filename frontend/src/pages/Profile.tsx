@@ -1,6 +1,15 @@
 import { useAuth } from '../auth/AuthContext'
 import ProgressBar from '../components/ProgressBar';
 
+// =============================================================================
+// !!! HARDCODED DUMMY DATA !!! replace with listInventory() from ../api/shop
+// once the backend is wired up
+// =============================================================================
+const DUMMY_INVENTORY = [
+  { id: 's-1', name: 'Blue Keycaps', emoji: '🟦' },
+  { id: 's-4', name: 'Cat Sticker', emoji: ':3' },
+]
+
 export default function Profile() {
   const { me } = useAuth()
 
@@ -16,13 +25,11 @@ export default function Profile() {
       <div className="flex items-center justify-between bg-white p-6 rounded-xl border-2 border-slate-200">
         <div className="flex items-center gap-4">
           <div className="w-14 h-14 rounded-xl bg-lime-500 text-white font-black text-2xl flex items-center justify-center uppercase">
-            <p>u</p>
+            <p>{me?.username?.[0] ?? 'u'}</p>
           </div>
           <div>
             <h1 className="text-2xl font-black text-slate-900">
-              {/* uhh why is this not showing */}
-              {/* jokes */}
-              usernameeee :3
+              {me?.username ?? 'not logged in'}
             </h1>
           </div>
         </div>
@@ -53,11 +60,13 @@ export default function Profile() {
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-1.5 text-center">
-              {/* :3 is just temporary this should be a drawn image instead */}
-              <span className="text-2xl">:3</span>
-              <span className="text-xs font-bold text-slate-700">Item 1</span>
-            </div>
+            {DUMMY_INVENTORY.map((item) => (
+              <div key={item.id} className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-1.5 text-center">
+                {/* emoji is just temporary, should be a drawn image instead */}
+                <span className="text-2xl">{item.emoji}</span>
+                <span className="text-xs font-bold text-slate-700">{item.name}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>

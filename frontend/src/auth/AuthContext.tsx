@@ -19,6 +19,17 @@ interface AuthState {
 
 const AuthContext = createContext<AuthState | null>(null)
 
+// =============================================================================
+// !!! HARDCODED DUMMY DATA !!! fake auth so the frontend works without the
+// backend. any username/password logs in. swap every function body marked
+// "DUMMY" below for the real api/auth + api/user calls when the backend exists.
+// =============================================================================
+const FAKE_USERNAME_KEY = 'fake_username'
+
+function fakeMe(username: string): Me {
+  return { id: 'u-1', username, coins: 135, solved_count: 3, unlocked_keys: 7 }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [me, setMe] = useState<Me | null>(null)
   const [loading, setLoading] = useState(true)
@@ -27,36 +38,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // with it. if that fails the token is stale, throw it away
   useEffect(() => {
     async function restore() {
-      // TODO: if getToken() is null, just setLoading(false).
-      // otherwise getMe(), setMe(...), and on error setToken(null)
-      // delete these three lines once you use them
-      void setMe
-      void getToken
-      void setToken
+      //! DUMMY: real version should getMe() and setToken(null) on failure
+      if (getToken()) {
+        setMe(fakeMe(localStorage.getItem(FAKE_USERNAME_KEY) ?? 'usernameee :3'))
+      }
       setLoading(false)
     }
     restore()
   }, [])
 
-  async function login(_username: string, _password: string) {
-    // call api/auth login, setToken with the result, then fetch me
-    throw new Error('not implemented')
+  //! DUMMY: always succeeds. real version calls api/auth login then getMe()
+  async function login(username: string, _password: string) {
+    setToken('fake-token')
+    localStorage.setItem(FAKE_USERNAME_KEY, username)
+    setMe(fakeMe(username))
   }
 
-  async function signup(_username: string, _password: string) {
-    // same shape as login but hits signup
-    throw new Error('not implemented')
+  //! DUMMY: same as login. real version hits signup
+  async function signup(username: string, password: string) {
+    await login(username, password)
   }
 
   async function logout() {
-    // tell the backend, then setToken(null) and setMe(null).
-    // clear local state even if the backend call fails
-    throw new Error('not implemented')
+    //! DUMMY: real version tells the backend first
+    setToken(null)
+    localStorage.removeItem(FAKE_USERNAME_KEY)
+    setMe(null)
   }
 
   async function refresh() {
-    // re-fetch /users/me and setMe
-    throw new Error('not implemented')
+    //! DUMMY: real version re-fetches /users/me
+    if (getToken()) {
+      setMe(fakeMe(localStorage.getItem(FAKE_USERNAME_KEY) ?? 'usernameee :3'))
+    }
   }
 
   return (

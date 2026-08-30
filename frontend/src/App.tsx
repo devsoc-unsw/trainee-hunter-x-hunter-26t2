@@ -4,12 +4,10 @@
 //* everything thats commented out with //? is meant to be uncommented.
 //! everything thats commented at the end with //! is meant to be commented after
 
-//* import { Navigate, Route, Routes } from 'react-router-dom'
-
-import { Route, Routes } from 'react-router-dom' //! REMOVE LTR
+import { Navigate, Route, Routes } from 'react-router-dom'
 import type { ReactNode } from 'react'
 import NavBar from './components/NavBar'
-//* import { useAuth } from './auth/AuthContext'
+import { useAuth } from './auth/AuthContext'
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
@@ -20,9 +18,9 @@ import Profile from './pages/Profile'
 
 // wraps pages that need a login. kicks you to /login if you're not
 function RequireAuth({ children }: { children: ReactNode }) {
-  //* const { me, loading } = useAuth()
-  //* if (loading) return <p>loading...</p>
-  //* if (!me) return <Navigate to="/login" replace />
+  const { me, loading } = useAuth()
+  if (loading) return <p>loading...</p>
+  if (!me) return <Navigate to="/login" replace />
   return children
 }
 

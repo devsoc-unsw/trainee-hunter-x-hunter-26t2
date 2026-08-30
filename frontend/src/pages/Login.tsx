@@ -11,11 +11,12 @@ export default function Login() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    // TODO: call login(username, password), navigate('/') on success,
-    // setError with the message on failure
-    setError('login not implemented yet')
-    void login
-    void navigate
+    try {
+      await login(username, password)
+      navigate('/')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'login failed')
+    }
   }
 
   return (

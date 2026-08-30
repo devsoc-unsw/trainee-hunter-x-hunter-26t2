@@ -12,11 +12,16 @@ export default function Signup() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    // TODO: check password === confirm first, then signup(username, password)
-    // and navigate('/'). remember the backend wants password >= 8 chars
-    setError('signup not implemented yet')
-    void signup
-    void navigate
+    if (password !== confirm) {
+      setError('passwords do not match')
+      return
+    }
+    try {
+      await signup(username, password)
+      navigate('/')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'signup failed')
+    }
   }
 
   return (
