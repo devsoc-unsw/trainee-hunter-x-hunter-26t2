@@ -13,7 +13,6 @@ export default function Profile() {
     //   {me && <p>{me.username}</p>}
     <div className="p-6 mx-auto flex flex-col gap-6 text-slate-800">
       
-      {/* Top Header Section: User Info & Coins */}
       <div className="flex items-center justify-between bg-white p-6 rounded-xl border-2 border-slate-200">
         <div className="flex items-center gap-4">
           <div className="w-14 h-14 rounded-xl bg-lime-500 text-white font-black text-2xl flex items-center justify-center uppercase">
@@ -22,19 +21,18 @@ export default function Profile() {
           <div>
             <h1 className="text-2xl font-black text-slate-900">
               {/* uhh why is this not showing */}
+              {/* jokes */}
               usernameeee :3
             </h1>
           </div>
         </div>
 
-        {/* Coins Badge */}
         <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 border-2 border-amber-200/80 rounded-2xl font-black text-yellow-700 text-base">
           <span>🪙</span>
           <span>{me?.coins ?? 0} Coins</span>
         </div>
       </div>
 
-      {/* Main Content Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         
         <div className="flex flex-col gap-6">

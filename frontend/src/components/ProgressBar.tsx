@@ -16,10 +16,8 @@ export default function ProgressBar() {
 
     const radius = 52
     const circumference = 2 * Math.PI * radius
-
     const gapAngle = 12 
     const gapLength = (gapAngle / 360) * circumference 
-
     const segmentLength = (circumference - 3 * gapLength) / 3
 
 
@@ -56,7 +54,6 @@ export default function ProgressBar() {
                     strokeLinecap="round"
                     className="stroke-green-50 stroke-8 fill-transparent"
                     />
-                    {/* Easy Solid Fill */}
                     <circle
                     cx="60"
                     cy="60"
@@ -76,7 +73,6 @@ export default function ProgressBar() {
                     strokeDashoffset={medStyles.dashOffset}
                     strokeLinecap="round"
                     className="stroke-yellow-50 stroke-8 fill-transparent"/>
-                    {/* Medium Solid Fill */}
                     <circle
                     cx="60"
                     cy="60"
@@ -106,7 +102,6 @@ export default function ProgressBar() {
                     className="stroke-red-500 stroke-8 fill-transparent"/>
                 </svg>
 
-                {/* Center Text Readout */}
                 <div className="absolute flex flex-col items-center justify-center text-center">
                     <div className="flex items-baseline">
                     <span className="text-3xl font-black text-slate-900">{stats.solved}</span>
@@ -125,7 +120,6 @@ export default function ProgressBar() {
             {/* rhs */}
             <div className="flex-1 flex flex-col gap-3">
                 <div className="flex flex-col gap-3 flex-1">
-                    {/* Easy */}
                     <div className="bg-green-50 border-2 border-green-200 rounded-xl p-2 text-center">
                     <span className="text-xs font-bold text-green-600 block">Easy</span>
                     <span className="text-sm font-black text-slate-800">
@@ -133,7 +127,6 @@ export default function ProgressBar() {
                     </span>
                     </div>
 
-                    {/* Medium */}
                     <div className="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-2 text-center">
                     <span className="text-xs font-bold text-yellow-500 block">Med.</span>
                     <span className="text-sm font-black text-slate-800">
@@ -141,7 +134,6 @@ export default function ProgressBar() {
                     </span>
                     </div>
 
-                    {/* Hard */}
                     <div className="bg-red-50 border-2 border-red-200 rounded-xl p-2 text-center">
                     <span className="text-xs font-bold text-red-500 block">Hard</span>
                     <span className="text-sm font-black text-slate-800">
