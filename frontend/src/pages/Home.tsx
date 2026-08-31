@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom';
 import Problems from './Problems';
 import { useAuth } from '../auth/AuthContext';
+import Keyboard from '../components/Keyboard';
 
 export default function Home() {
     const { me } = useAuth()
     return (
-    <div className="m-6 flex flex-row">
+    <div className="m-6 flex flex-row gap-5">
         {/* im gonna need a header here but thats an issue for future me */}
         <div className="basis-2/3">
             <div className="mb-6">
@@ -16,6 +17,7 @@ export default function Home() {
                 ready to bloom?
                 </h2>
             </div>
+            {/* ideally id like to show the problems that they have already as a work in progress */}
             <Problems />
 
             <Link to="/problems"  className= "p-3 bg-lime-600 text-white font-bold rounded-xl hover:bg-lime-700">
@@ -25,8 +27,9 @@ export default function Home() {
 
 
         <div className="basis-1/3">
-            <div className="bg-red-100">
-                keyboard here
+            <p className="text-2xl font-black text-slate-900">Your keyboard</p>
+            <div className="w-full p-4">
+                <Keyboard unlockedCount={25}/>
             </div>
         </div>
     </div>

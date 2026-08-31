@@ -1,5 +1,6 @@
 import { useAuth } from '../auth/AuthContext'
 import ProgressBar from '../components/ProgressBar';
+import Keyboard from '../components/Keyboard';
 
 // =============================================================================
 // !!! HARDCODED DUMMY DATA !!! replace with listInventory() from ../api/shop
@@ -47,8 +48,8 @@ export default function Profile() {
             <ProgressBar />
           </div>
 
-          <div className="bg-red-100">
-            keyboard here
+          <div className="w-full bg-slate-50 p-4 rounded-xl border-2 border-slate-200">
+            <Keyboard unlockedCount={25}/>
           </div>
         </div>
 

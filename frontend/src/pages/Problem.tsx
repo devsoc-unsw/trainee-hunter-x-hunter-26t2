@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import CodeEditor from '../components/CodeEditor'
 import TestResults from '../components/TestResults'
 import { useAuth } from '../auth/AuthContext'
+import Keyboard from '../components/Keyboard';
 import type { QuestionDetail, SubmitResponse } from '../types'
 
 // =============================================================================
@@ -84,8 +85,8 @@ export default function Problem() {
       {/* lhs */}
       <div className="flex flex-col gap-4 bg-white p-5 rounded-xl border-2 border-slate-200">
         {/* im gonna put the keyboard here */}
-        <div className="w-full bg-red-100">
-          keyboard :3
+        <div className="w-full p-4">
+            <Keyboard unlockedCount={25}/>
         </div>
         <div>
           <h1 className="text-2xl font-black text-slate-900 mb-2">

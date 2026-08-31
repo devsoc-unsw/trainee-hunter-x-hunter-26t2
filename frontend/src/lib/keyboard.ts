@@ -24,5 +24,17 @@ export function keyState(_key: string, _unlockedCount: number): KeyState {
   // 'unlocked' if the key's position in KEY_UNLOCK_ORDER is < unlockedCount,
   // 'next' if it's the very next one to unlock (nice for a little glow),
   // 'locked' otherwise
-  throw new Error('not implemented')
+  // throw new Error('not implemented')
+  const index = KEY_UNLOCK_ORDER.indexOf(_key)
+
+  // Key is not in unlock order array
+  if (index === -1) return 'locked'
+
+  if (index < _unlockedCount) {
+    return 'unlocked'
+  } else if (index === _unlockedCount) {
+    return 'next'
+  } else {
+    return 'locked'
+  }
 }
