@@ -4,7 +4,7 @@ import os
 from collections.abc import AsyncIterator
 
 import psycopg
-from psycopg.rows import dict_row
+from psycopg.rows import DictRow, dict_row
 
 
 def database_url() -> str:
@@ -14,7 +14,7 @@ def database_url() -> str:
     )
 
 
-async def get_conn() -> AsyncIterator[psycopg.AsyncConnection]:
+async def get_conn() -> AsyncIterator[psycopg.AsyncConnection[DictRow]]:
     """FastAPI dependency. Opens a connection, commits, closes.
 
     Use it in a route like:
@@ -25,7 +25,7 @@ async def get_conn() -> AsyncIterator[psycopg.AsyncConnection]:
 
     rows come back as dicts, so row["username"] not row[0].
     """
-    async with await psycopg.AsyncConnection.connect(
+    async with await psycopg.AsyncConnection[DictRow].connect(
         database_url(), row_factory=dict_row
     ) as connection:
         yield connection

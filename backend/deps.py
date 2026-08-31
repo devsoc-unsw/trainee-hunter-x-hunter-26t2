@@ -8,12 +8,13 @@ from typing import Annotated
 
 import psycopg
 from fastapi import Depends, Header, HTTPException
+from psycopg.rows import DictRow
 
 import queries.sessions
 from db import get_conn
 from models import User
 
-Conn = Annotated[psycopg.AsyncConnection, Depends(get_conn)]
+Conn = Annotated[psycopg.AsyncConnection[DictRow], Depends(get_conn)]
 
 
 async def current_user(
