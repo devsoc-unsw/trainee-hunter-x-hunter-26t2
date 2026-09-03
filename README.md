@@ -52,6 +52,11 @@ uv run pytest tests/api/test_auth.py -x   # one file, stop at first failure
 
 The frontend has no tests - check your work in the browser.
 
+## New here?
+
+read [docs/](docs/README.md) - six short explainers covering how the app
+fits together, the database, the backend, auth, react, and the judge.
+
 ## Where things live
 
 ```

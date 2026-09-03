@@ -12,16 +12,21 @@ export default function Signup() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    // TODO: check password === confirm first, then signup(username, password)
-    // and navigate('/'). remember the backend wants password >= 8 chars
-    setError('signup not implemented yet')
-    void signup
-    void navigate
+    if (password !== confirm) {
+      setError('passwords do not match')
+      return
+    }
+    try {
+      await signup(username, password)
+      navigate('/')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'signup failed')
+    }
   }
 
   return (
-    <div className="page m-6">
-      <div className="mb-2">
+    <div className="page m-6 flex flex-col items-center justify-center">
+      <div className="flex flex-col mb-2">
         {/* TEMP!! FIX LATER */}
         {error && <p className="error">{error}</p>}
         {/* FIX!! LATER */}
@@ -29,8 +34,8 @@ export default function Signup() {
         <h2 className="text-xl text-slate-500">We're excited to have you!</h2>
       </div>
 
-      <form onSubmit={handleSubmit} className="auth-form">
-        <div className="mb-2 flex items-center gap-3 w-full bg-slate-50
+      <form onSubmit={handleSubmit} className="auth-form w-full max-w-md bg-white p-6 md:p-8 rounded-xl border-2 border-slate-200 flex flex-col gap-3">
+        <div className="mb-2 flex items-center gap-3 bg-slate-50
         border-2 border-slate-200 rounded-full p-3 text-slate-400
         focus-within:bg-white focus-within:border-slate-400">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
@@ -40,7 +45,7 @@ export default function Signup() {
             17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
           </svg>
           <input
-            className="w-full bg-transparent font-semibold text-slate-900 placeholder-slate-400
+            className="bg-transparent font-semibold text-slate-900 placeholder-slate-400
             focus:outline-none"
             placeholder="username"
             value={username}
