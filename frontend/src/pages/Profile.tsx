@@ -49,7 +49,7 @@ export default function Profile() {
           </div>
 
           <div className="w-full bg-slate-50 p-4 rounded-xl border-2 border-slate-200">
-            <Keyboard unlockedCount={25}/>
+            <Keyboard unlockedCount={17}/>
           </div>
         </div>
 

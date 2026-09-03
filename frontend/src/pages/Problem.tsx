@@ -53,6 +53,19 @@ export default function Problem() {
   const [result, setResult] = useState<SubmitResponse | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
+  const [activeKey, setActiveKey] = useState<string | null>(null)
+  const [pressCounts, setPressCounts] = useState<Record<string, number>>({})
+
+  const unlockedCount = 17
+
+  const handleKeyLogged = (key: string) => {
+    setActiveKey(key)
+    setPressCounts((prev) => ({
+      ...prev,
+      [key]: (prev[key] || 0) + 1,
+    }))
+  }
+
   const question = DUMMY_DETAILS[id ?? ''] ?? fallbackDetail(id ?? '?')
 
   useEffect(() => {
@@ -86,7 +99,11 @@ export default function Problem() {
       <div className="flex flex-col gap-4 bg-white p-5 rounded-xl border-2 border-slate-200">
         {/* im gonna put the keyboard here */}
         <div className="w-full p-4">
-            <Keyboard unlockedCount={25}/>
+            <Keyboard 
+            unlockedCount={unlockedCount} 
+            activeKey={activeKey} 
+            pressCounts={pressCounts} 
+          />
         </div>
         <div>
           <h1 className="text-2xl font-black text-slate-900 mb-2">
@@ -150,7 +167,7 @@ export default function Problem() {
         {/* needa style code editor.  */}
         
         <div className="border-2 border-slate-200 rounded-xl">
-          <CodeEditor value={code} onChange={setCode}/>
+          <CodeEditor value={code} onChange={setCode} unlockedCount={unlockedCount} onKeyLogged={handleKeyLogged}/>
           {/* idk how to make this longer */}
         </div>
 
