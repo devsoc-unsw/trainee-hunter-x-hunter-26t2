@@ -20,7 +20,7 @@ async def get_user_for_token(conn: psycopg.AsyncConnection[DictRow], token: str)
     row = await (
         await conn.execute(
             """
-            select users.id, users.username, users.coins
+            select users.id, users.username, users.coins, users.keys_bought
             from sessions
             join users on users.id = sessions.user_id
             where sessions.token = %s

@@ -4,13 +4,29 @@ import type { ShopItem } from '../types'
 // =============================================================================
 // !!! HARDCODED DUMMY DATA !!! replace with listShop() from ../api/shop once
 // the backend is wired up. items match backend/seed.sql; emoji stand in for
-// image_url for now. DUMMY_COINS + handleBuy are fake local state too.
+// the real drawings in src/assets/shop_items until someone maps slug -> import
+// (image_url can't be used as a src - vite content-hashes src/assets).
+// DUMMY_COINS + handleBuy are fake local state too.
 // =============================================================================
+const item = (
+  id: string, slug: string, name: string, price: number,
+  kind: ShopItem['kind'], habitat: ShopItem['habitat'], emoji: string, owned = false,
+): ShopItem & { emoji: string } =>
+  ({ id, slug, name, price, image_url: '', kind, habitat, owned, emoji })
+
 const DUMMY_ITEMS: (ShopItem & { emoji: string })[] = [
-  { id: 's-1', name: 'Blue Keycaps', price: 50, image_url: '', owned: true, emoji: '🟦' },
-  { id: 's-2', name: 'Pink Keycaps', price: 50, image_url: '', owned: false, emoji: '🌸' },
-  { id: 's-3', name: 'Wooden Case', price: 150, image_url: '', owned: false, emoji: '🪵' },
-  { id: 's-4', name: 'Cat Sticker', price: 25, image_url: '', owned: true, emoji: ':3' },
+  item('s-1', 'soil-key', 'Soil Key', 60, 'key_skin', 'land', '🟫'),
+  item('s-2', 'water-key', 'Water Key', 120, 'key_skin', 'water', '🟦'),
+  item('s-3', 'pink-daffodil', 'Pink Daffodils', 20, 'accessory', 'land', '🌸', true),
+  item('s-4', 'blue-daffodil', 'Blue Daffodils', 20, 'accessory', 'land', '💠'),
+  item('s-5', 'pink-daisy', 'Pink Daisies', 25, 'accessory', 'land', '🌺'),
+  item('s-6', 'purple-daisy', 'Purple Daisies', 25, 'accessory', 'land', '🪻'),
+  item('s-7', 'white-tulip', 'White Tulips', 30, 'accessory', 'land', '🤍'),
+  item('s-8', 'blue-tulip', 'Blue Tulips', 30, 'accessory', 'land', '🌷'),
+  item('s-9', 'tomato', 'Tomatoes', 40, 'accessory', 'land', '🍅'),
+  item('s-10', 'carrot', 'Carrots', 40, 'accessory', 'land', '🥕'),
+  item('s-11', 'fish', 'Fish', 80, 'accessory', 'water', '🐟'),
+  item('s-12', 'jellyfish', 'Jellyfish', 90, 'accessory', 'water', '🪼'),
 ]
 
 const DUMMY_COINS = 135

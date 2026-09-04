@@ -14,6 +14,8 @@ from uuid import UUID
 import psycopg
 import pytest
 
+import queries.decor
+import queries.keypresses
 import queries.progress
 import queries.questions
 import queries.sessions
@@ -242,3 +244,155 @@ async def test_inventory_joins_through_to_the_item(conn, user, item):
     assert [row["id"] for row in owned] == [item["id"]]
     assert owned[0]["name"] == item["name"]
     assert "price" in owned[0]
+
+
+# ---------- decor ----------
+
+
+@pytest.fixture
+async def owned(conn, user):
+    """Gives the user one of everything, so placement tests can place it."""
+    items = {row["slug"]: row for row in await queries.shop.list_items(conn)}
+    for slug in ("soil-key", "water-key", "fish", "blue-tulip"):
+        await queries.shop.add_to_inventory(conn, user.id, items[slug]["id"])
+    return items
+
+
+async def test_a_fresh_keyboard_has_no_decor(conn, user):
+    # no rows at all - the frontend draws every key as the default grass
+    assert await queries.decor.list_key_decor(conn, user.id) == []
+
+
+async def test_cannot_place_an_item_you_do_not_own(conn, user):
+    """The composite foreign key is what enforces this, not route code."""
+    fish = next(
+        row for row in await queries.shop.list_items(conn) if row["slug"] == "fish"
+    )
+    with pytest.raises(psycopg.errors.ForeignKeyViolation):
+        await queries.decor.set_accessory(conn, user.id, "f", fish["id"])
+
+
+async def test_decor_reads_back_as_slugs(conn, user, owned):
+    await queries.decor.set_skin(
+        conn, user.id, "f", owned["water-key"]["id"], keep_accessory=False
+    )
+    await queries.decor.set_accessory(conn, user.id, "f", owned["fish"]["id"])
+
+    decor = await queries.decor.list_key_decor(conn, user.id)
+    assert decor == [
+        {"key_char": "f", "skin_slug": "water-key", "accessory_slug": "fish"}
+    ]
+
+
+async def test_a_second_accessory_replaces_the_first(conn, user, owned):
+    # one accessory per key. the primary key is what makes this a replace
+    # rather than two flowers piling up on the same key
+    await queries.decor.set_accessory(conn, user.id, "f", owned["fish"]["id"])
+    await queries.decor.set_accessory(conn, user.id, "f", owned["blue-tulip"]["id"])
+
+    decor = await queries.decor.list_key_decor(conn, user.id)
+    assert len(decor) == 1
+    assert decor[0]["accessory_slug"] == "blue-tulip"
+
+
+async def test_changing_skin_can_evict_an_incompatible_accessory(conn, user, owned):
+    """A fish on a key that stops being water has to go somewhere."""
+    await queries.decor.set_skin(
+        conn, user.id, "f", owned["water-key"]["id"], keep_accessory=False
+    )
+    await queries.decor.set_accessory(conn, user.id, "f", owned["fish"]["id"])
+
+    await queries.decor.set_skin(
+        conn, user.id, "f", owned["soil-key"]["id"], keep_accessory=False
+    )
+    decor = await queries.decor.list_key_decor(conn, user.id)
+    assert decor[0]["skin_slug"] == "soil-key"
+    assert decor[0]["accessory_slug"] is None
+
+
+async def test_changing_skin_can_keep_a_compatible_accessory(conn, user, owned):
+    await queries.decor.set_accessory(conn, user.id, "f", owned["blue-tulip"]["id"])
+    await queries.decor.set_skin(
+        conn, user.id, "f", owned["soil-key"]["id"], keep_accessory=True
+    )
+    decor = await queries.decor.list_key_decor(conn, user.id)
+    assert decor[0]["accessory_slug"] == "blue-tulip"
+
+
+async def test_clearing_a_key(conn, user, owned):
+    await queries.decor.set_accessory(conn, user.id, "f", owned["fish"]["id"])
+    assert await queries.decor.clear_key(conn, user.id, "f") is True
+    assert await queries.decor.list_key_decor(conn, user.id) == []
+    # clearing a key that was never decorated is not an error
+    assert await queries.decor.clear_key(conn, user.id, "f") is False
+
+
+async def test_decor_is_per_user(conn, user, owned):
+    other = await queries.users.create_user(conn, "someoneelse", "fakehash")
+    await queries.decor.set_accessory(conn, user.id, "f", owned["fish"]["id"])
+    assert await queries.decor.list_key_decor(conn, other.id) == []
+
+
+# ---------- key presses ----------
+
+
+async def test_presses_start_at_one_and_climb(conn, user):
+    assert await queries.keypresses.record_press(conn, user.id, "f") == 1
+    assert await queries.keypresses.record_press(conn, user.id, "f") == 2
+    assert await queries.keypresses.record_press(conn, user.id, "f") == 3
+
+
+async def test_presses_are_counted_per_key(conn, user):
+    await queries.keypresses.record_press(conn, user.id, "f")
+    await queries.keypresses.record_press(conn, user.id, "f")
+    await queries.keypresses.record_press(conn, user.id, "j")
+
+    assert await queries.keypresses.list_presses(conn, user.id) == {"f": 2, "j": 1}
+    assert await queries.keypresses.total_presses(conn, user.id) == 3
+
+
+async def test_presses_are_per_user(conn, user):
+    """The in-memory version this replaces counted everyone into one dict."""
+    other = await queries.users.create_user(conn, "someoneelse", "fakehash")
+    await queries.keypresses.record_press(conn, user.id, "f")
+    assert await queries.keypresses.record_press(conn, other.id, "f") == 1
+    assert await queries.keypresses.list_presses(conn, other.id) == {"f": 1}
+
+
+async def test_no_presses_yet(conn, user):
+    assert await queries.keypresses.list_presses(conn, user.id) == {}
+    assert await queries.keypresses.total_presses(conn, user.id) == 0
+
+
+# ---------- buying key unlocks ----------
+
+
+async def test_new_user_has_bought_no_keys(user):
+    assert user.keys_bought == 0
+
+
+async def test_buying_a_key_costs_coins(conn, user):
+    await queries.users.add_coins(conn, user.id, 100)
+    row = await queries.users.buy_key_unlock(conn, user.id, price=40, max_keys=36)
+    assert row is not None
+    assert row == {"coins": 60, "keys_bought": 1}
+
+
+async def test_cannot_buy_a_key_you_cannot_afford(conn, user):
+    await queries.users.add_coins(conn, user.id, 10)
+    assert await queries.users.buy_key_unlock(conn, user.id, price=40, max_keys=36) is None
+    # and it must not have charged them or half-unlocked anything
+    after = await queries.users.get_user_by_id(conn, user.id)
+    assert after is not None
+    assert (after.coins, after.keys_bought) == (10, 0)
+
+
+async def test_cannot_buy_past_the_end_of_the_keyboard(conn, user):
+    await queries.users.add_coins(conn, user.id, 1000)
+    assert await queries.users.buy_key_unlock(conn, user.id, price=1, max_keys=2) is not None
+    assert await queries.users.buy_key_unlock(conn, user.id, price=1, max_keys=2) is not None
+    assert await queries.users.buy_key_unlock(conn, user.id, price=1, max_keys=2) is None
+
+    after = await queries.users.get_user_by_id(conn, user.id)
+    assert after is not None
+    assert (after.coins, after.keys_bought) == (998, 2)
