@@ -8,9 +8,9 @@ import grassKeyImg from '../assets/keys/grass_key.png'
 import woodKeyImg from '../assets/keys/wood_key.png'
 
 interface KeyboardProps {
-  unlockedCount: number
-  activeKey: string | null
-  pressCounts: Record<string, number>
+  unlockedCount?: number
+  activeKey?: string | null
+  pressCounts?: Record<string, number>
 }
 
 export default function Keyboard({ unlockedCount=0, activeKey=null, pressCounts={} }: KeyboardProps) {
