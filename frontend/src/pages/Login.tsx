@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
-import { ApiError } from '../api/client'
 
 export default function Login() {
   const { login } = useAuth()
@@ -12,17 +11,16 @@ export default function Login() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    setError('')
     try {
       await login(username, password)
       navigate('/')
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Something went wrong')
+      setError(err instanceof Error ? err.message : 'login failed')
     }
   }
 
   return (
-    <div className="page m-6">
+    <div className="page m-6 flex flex-col items-center justify-center">
       <div className="mb-2">
         {/* TEMP!! FIX LATER */}
         {error && <p className="error">{error}</p>}
@@ -31,9 +29,7 @@ export default function Login() {
         <h2 className="text-xl text-slate-500">It's great to see you!</h2>
       </div>
 
-
-
-      <form onSubmit={handleSubmit} className="auth-form">
+      <form onSubmit={handleSubmit} className="auth-form w-full max-w-md bg-white p-6 md:p-8 rounded-xl border-2 border-slate-200 flex flex-col gap-3">
         <div className="mb-2 flex items-centre gap-3 w-full bg-slate-50
         border-2 border-slate-200 rounded-full p-3 text-slate-400
         focus-within:bg-white focus-within:border-slate-400">

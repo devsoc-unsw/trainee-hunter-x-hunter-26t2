@@ -1,9 +1,29 @@
 import { Link } from 'react-router-dom';
+import type { QuestionSummary } from '../types';
+
+// =============================================================================
+// !!! HARDCODED DUMMY DATA !!! replace with listQuestions() from ../api/questions
+// once the backend is wired up
+// =============================================================================
+const DUMMY_QUESTIONS: QuestionSummary[] = [
+  { id: '1', slug: 'two-sum', name: 'Two Sum', difficulty: 'easy', solved: true },
+  { id: '2', slug: 'reverse-string', name: 'Reverse String', difficulty: 'easy', solved: true },
+  { id: '3', slug: 'fizzbuzz', name: 'FizzBuzz', difficulty: 'easy', solved: true },
+  { id: '4', slug: 'valid-parentheses', name: 'Valid Parentheses', difficulty: 'medium', solved: false },
+  { id: '5', slug: 'merge-intervals', name: 'Merge Intervals', difficulty: 'medium', solved: false },
+  { id: '6', slug: 'trapping-rain-water', name: 'Trapping Rain Water', difficulty: 'hard', solved: false },
+]
+
+const DIFFICULTY_COLOR = {
+  easy: 'text-green-600',
+  medium: 'text-yellow-600',
+  hard: 'text-red-600',
+} as const
+
+const DIFFICULTY_LABEL = { easy: 'Easy', medium: 'Medium', hard: 'Hard' } as const
 
 export default function Problems() {
-  // TODO: on mount, listQuestions() into state (useEffect + useState).
-  // render a table: name, difficulty, a tick if solved. each row links
-  // to /problems/{id}
+  // TODO: swap DUMMY_QUESTIONS for listQuestions() on mount (useEffect + useState)
   return (
     <div className="page">
       <div className="">
@@ -39,55 +59,23 @@ export default function Problems() {
           </button>
         </div>
         <div className="flex flex-col">
-          <Link to="/problems/1"
-          className="flex items-center justify-between p-2 bg-lime-50 rounded-xl">
-            <div className="flex items-center gap-3">
-              <span className="w-6 h-6 text-lime-700 flex items-center justify-center font-bold text-lg">
-                ✓
-              </span>
-              <span className="font-bold text-gray-900">
-                1 - Question 1 name
-              </span>
-            </div>
+          {DUMMY_QUESTIONS.map((q) => (
+            <Link key={q.id} to={`/problems/${q.id}`}
+            className={`flex items-center justify-between p-2 rounded-xl ${q.solved ? 'bg-lime-50' : 'bg-slate-50'}`}>
+              <div className="flex items-center gap-3">
+                <span className="w-6 h-6 text-lime-700 flex items-center justify-center font-bold text-lg">
+                  {q.solved ? '✓' : ''}
+                </span>
+                <span className="font-bold text-gray-900">
+                  {q.id} - {q.name}
+                </span>
+              </div>
 
-            <span className="font-black text-green-600">
-              Easy
-            </span>
-          </Link>
-
-          
-
-          <Link to="/problems/2"
-          className="flex items-center justify-between p-2 bg-slate-50 rounded-xl">
-            <div className="flex items-center gap-3">
-              <span className="w-6 h-6 text-lime-700 flex items-center justify-center font-bold text-lg">
-                ✓
+              <span className={`font-black ${DIFFICULTY_COLOR[q.difficulty]}`}>
+                {DIFFICULTY_LABEL[q.difficulty]}
               </span>
-              <span className="font-bold text-gray-900">
-                2 - Question 2 name
-              </span>
-            </div>
-
-            <span className="font-black text-red-600">
-              Hard
-            </span>
-          </Link>
-
-          <Link to="/problems/3"
-          className="flex items-center justify-between p-2 bg-lime-50 rounded-xl">
-            <div className="flex items-center gap-3">
-              <span className="w-6 h-6 text-lime-700 flex items-center justify-center font-bold text-lg">
-                
-              </span>
-              <span className="font-bold text-gray-900">
-                3 - Question 3 name
-              </span>
-            </div>
-
-            <span className="font-black text-yellow-600">
-                Medium
-            </span>
-          </Link>
+            </Link>
+          ))}
         </div>
       </div>
     </div>
