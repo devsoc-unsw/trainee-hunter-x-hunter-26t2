@@ -3,7 +3,8 @@
 
 import { createContext, useContext, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
-import { getToken, setToken } from '../api/client'
+import { setToken } from '../api/client'
+import * as authApi from '../api/auth'
 import type { Me } from '../types'
 
 interface AuthState {
@@ -27,35 +28,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // with it. if that fails the token is stale, throw it away
   useEffect(() => {
     async function restore() {
-      // TODO: if getToken() is null, just setLoading(false).
-      // otherwise getMe(), setMe(...), and on error setToken(null)
-      // delete these three lines once you use them
-      void setMe
-      void getToken
-      void setToken
+      // GET /users/me isn't implemented yet (blocked on routers/users.py +
+      // keyboard.py). Once it lands, this should call getMe(), setMe(...),
+      // and setToken(null) on failure, per the original TODO.
       setLoading(false)
     }
     restore()
   }, [])
 
-  async function login(_username: string, _password: string) {
-    // call api/auth login, setToken with the result, then fetch me
-    throw new Error('not implemented')
+  async function login(username: string, password: string) {
+    const { token } = await authApi.login(username, password)
+    setToken(token)
   }
 
-  async function signup(_username: string, _password: string) {
-    // same shape as login but hits signup
-    throw new Error('not implemented')
+  async function signup(username: string, password: string) {
+    const { token } = await authApi.signup(username, password)
+    setToken(token)
   }
 
   async function logout() {
-    // tell the backend, then setToken(null) and setMe(null).
-    // clear local state even if the backend call fails
-    throw new Error('not implemented')
+    try {
+      await authApi.logout()
+    } catch {
+      // ignore - we're clearing local state regardless
+    } finally {
+      setToken(null)
+      setMe(null)
+    }
   }
 
   async function refresh() {
-    // re-fetch /users/me and setMe
+    // re-fetch /users/me and setMe - blocked on GET /users/me, out of scope here
     throw new Error('not implemented')
   }
 

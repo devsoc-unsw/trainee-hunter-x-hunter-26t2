@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
+import { ApiError } from '../api/client'
 
 export default function Login() {
   const { login } = useAuth()
@@ -11,11 +12,13 @@ export default function Login() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    // TODO: call login(username, password), navigate('/') on success,
-    // setError with the message on failure
-    setError('login not implemented yet')
-    void login
-    void navigate
+    setError('')
+    try {
+      await login(username, password)
+      navigate('/')
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Something went wrong')
+    }
   }
 
   return (

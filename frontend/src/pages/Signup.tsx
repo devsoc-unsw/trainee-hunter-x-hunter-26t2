@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
+import { ApiError } from '../api/client'
 
 export default function Signup() {
   const { signup } = useAuth()
@@ -12,11 +13,17 @@ export default function Signup() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    // TODO: check password === confirm first, then signup(username, password)
-    // and navigate('/'). remember the backend wants password >= 8 chars
-    setError('signup not implemented yet')
-    void signup
-    void navigate
+    setError('')
+    if (password !== confirm) {
+      setError('Passwords do not match')
+      return
+    }
+    try {
+      await signup(username, password)
+      navigate('/')
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Something went wrong')
+    }
   }
 
   return (
