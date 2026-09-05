@@ -23,6 +23,8 @@
 -- so going back to the default is free rather than a repurchase.
 
 insert into shop_items (slug, name, price, image_url, kind, habitat) values
+    ('extra-key',     'Unlock a Key',   50,  'keys/grass_key.png', 'key_unlock', 'land'),
+
     ('soil-key',      'Soil Key',       60,  'keys/dirt_key.png',        'key_skin',  'land'),
     ('water-key',     'Water Key',      120, 'keys/water_key.png',       'key_skin',  'water'),
 

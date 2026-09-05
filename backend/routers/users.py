@@ -19,7 +19,7 @@ async def get_me(conn: Conn, user: CurrentUser):
         username=user.username,
         coins=user.coins,
         solved_count=solved_count,
-        unlocked_keys=unlocked_key_count(solved_count),
+        unlocked_keys=unlocked_key_count(solved_count, user.keys_bought),
     )
 
 
@@ -42,5 +42,5 @@ async def update_me(body: UpdateMeRequest, conn: Conn, user: CurrentUser):
         username=updated_username,
         coins=user.coins,
         solved_count=solved_count,
-        unlocked_keys=unlocked_key_count(solved_count),
+        unlocked_keys=unlocked_key_count(solved_count, user.keys_bought),
     )

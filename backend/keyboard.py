@@ -18,14 +18,16 @@ SOLVES_PER_KEY = 1
 # you start with this many, so the keyboard isn't empty on signup
 STARTING_KEYS = 4
 
+MAX_BUYABLE_KEYS = len(KEY_UNLOCK_ORDER) - STARTING_KEYS
 
-def unlocked_key_count(solved_count: int) -> int:
+
+def unlocked_key_count(solved_count: int, keys_bought: int = 0) -> int:
     # how many keys are unlocked. starts at STARTING_KEYS, grows with solves,
     # caps at len(KEY_UNLOCK_ORDER)
-    count = STARTING_KEYS + (solved_count // SOLVES_PER_KEY)
+    count = STARTING_KEYS + (solved_count // SOLVES_PER_KEY) + keys_bought
     return min(count, len(KEY_UNLOCK_ORDER))
 
 
-def unlocked_keys(solved_count: int) -> list[str]:
+def unlocked_keys(solved_count: int, keys_bought: int = 0) -> list[str]:
     # the actual key characters that are unlocked
-    return KEY_UNLOCK_ORDER[:unlocked_key_count(solved_count)]
+    return KEY_UNLOCK_ORDER[:unlocked_key_count(solved_count, keys_bought)]

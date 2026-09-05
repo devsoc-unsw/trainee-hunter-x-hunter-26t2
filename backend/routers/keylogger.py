@@ -29,7 +29,7 @@ async def log_key(payload: KeyPayload, conn:Conn, user:CurrentUser):
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Invalid key"
         )
     solved_count = await count_solved(conn, user.id)
-    if key not in unlocked_keys(solved_count):
+    if key not in unlocked_keys(solved_count, user.keys_bought):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="Key is locked"
         )

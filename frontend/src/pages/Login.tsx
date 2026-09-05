@@ -20,17 +20,19 @@ export default function Login() {
   }
 
   return (
-    <div className="page m-6 flex flex-col items-center justify-center">
-      <div className="mb-2">
-        <div className="w-full mb-4 p-3 bg-red-50 border-2 border-red-200 text-red-600 rounded-xl font-medium text-center ">
-          Error: {error}!
-        </div>
+    <div className="page m-6 flex flex-col items-center justify-center text-center">
+      <div className="flex flex-col mb-2">
+        {error && (
+          <div className="w-full mb-4 p-3 bg-red-50 border-2 border-red-200 text-red-600 rounded-xl font-medium text-center ">
+            Error: {error}!
+          </div>
+        )}
         <h1 className="text-3xl font-black text-lime-600">Welcome back</h1>
         <h2 className="text-xl text-slate-500">It's great to see you!</h2>
       </div>
 
       <form onSubmit={handleSubmit} className="auth-form w-full max-w-md bg-white p-6 md:p-8 rounded-xl border-2 border-slate-200 flex flex-col gap-3">
-        <div className="mb-2 flex items-centre gap-3 w-full bg-slate-50
+        <div className="mb-2 flex items-center gap-3 w-full bg-slate-50
         border-2 border-slate-200 rounded-full p-3 text-slate-400
         focus-within:bg-white focus-within:border-slate-400">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
@@ -47,7 +49,7 @@ export default function Login() {
             onChange={(e) => setUsername(e.target.value)}
           />
         </div>
-        <div className="flex items-centre gap-3 w-full bg-slate-50
+        <div className="flex items-center gap-3 w-full bg-slate-50
         border-2 border-slate-200 rounded-full p-3 text-slate-400
         focus-within:bg-white focus-within:border-slate-400">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">

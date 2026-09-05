@@ -4,8 +4,9 @@ from fastapi import APIRouter, HTTPException, status
 
 from deps import Conn, CurrentUser
 from models import BuyResponse, ShopItem
+from keyboard import MAX_BUYABLE_KEYS
 from queries.shop import add_to_inventory, get_item, list_inventory, list_items, owns_item
-from queries.users import spend_coins
+from queries.users import buy_key_unlock, spend_coins
 
 router = APIRouter(prefix="/shop", tags=["shop"])
 
@@ -37,6 +38,20 @@ async def buy(item_id: UUID, conn: Conn, user: CurrentUser):
     if item is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
 
+    if item["kind"] == "key_unlock":
+        result = await buy_key_unlock(conn, user.id, item["price"], MAX_BUYABLE_KEYS)
+        if result is None:
+            if user.keys_bought >= MAX_BUYABLE_KEYS:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="All keys already unlocked",
+                )
+            raise HTTPException(
+                status_code=status.HTTP_402_PAYMENT_REQUIRED,
+                detail="Not enough coins",
+            )
+        return BuyResponse(item_id=item_id, coins_left=result["coins"])
+    
     if await owns_item(conn, user.id, item_id):
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Item already owned")
 
