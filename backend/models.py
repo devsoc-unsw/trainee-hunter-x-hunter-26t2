@@ -38,6 +38,9 @@ class User(BaseModel):
     id: UUID
     username: str
     coins: int
+    # keys bought with coins. keyboard.py turns this into the number actually
+    # unlocked by adding the ones everyone starts with.
+    keys_bought: int
 
 
 class Me(BaseModel):
@@ -117,9 +120,17 @@ class SubmitResponse(BaseModel):
 
 class ShopItem(BaseModel):
     id: UUID
+    # stable name for the item, eg 'blue-tulip'. the frontend picks its
+    # drawing off this, not off image_url - see seed.sql.
+    slug: str
     name: str
     price: int
     image_url: str
+    # 'key_skin' recolours a key, 'accessory' sits on one
+    kind: str
+    # 'land' or 'water'. an accessory only goes on a key of the same habitat,
+    # which is what keeps the fish off the flowerbeds - see decor.py.
+    habitat: str
     owned: bool
 
 

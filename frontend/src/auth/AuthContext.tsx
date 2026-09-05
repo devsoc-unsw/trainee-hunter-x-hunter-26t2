@@ -3,7 +3,8 @@
 
 import { createContext, useContext, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
-import { getToken, setToken } from '../api/client'
+import { setToken } from '../api/client'
+import * as authApi from '../api/auth'
 import type { Me } from '../types'
 import { getMe } from '../api/user'
 import { login as apiLogin, signup as apiSignup, logout as apiLogout } from '../api/auth'
@@ -20,17 +21,6 @@ interface AuthState {
 }
 
 const AuthContext = createContext<AuthState | null>(null)
-
-// =============================================================================
-// !!! HARDCODED DUMMY DATA !!! fake auth so the frontend works without the
-// backend. any username/password logs in. swap every function body marked
-// "DUMMY" below for the real api/auth + api/user calls when the backend exists.
-// =============================================================================
-// const FAKE_USERNAME_KEY = 'fake_username'
-
-// function fakeMe(username: string): Me {
-//   return { id: 'u-1', username, coins: 135, solved_count: 3, unlocked_keys: 7 }
-// }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [me, setMe] = useState<Me | null>(null)
@@ -60,16 +50,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   async function login(username: string, password: string) {
+    const { token } = await authApi.login(username, password)
+    setToken(token)
+  async function login(username: string, password: string) {
     await apiLogin(username, password)
     await fetchMe()
   }
 
   async function signup(username: string, password: string) {
+    const { token } = await authApi.signup(username, password)
+    setToken(token)
     await apiSignup(username, password)
     await fetchMe()
   }
 
   async function logout() {
+    try {
+      await authApi.logout()
+    } catch {
+      // ignore - we're clearing local state regardless
+    } finally {
+      setToken(null)
+      setMe(null)
+    }
     try {
       await apiLogout()
     } catch (err) {
