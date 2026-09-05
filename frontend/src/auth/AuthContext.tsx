@@ -3,11 +3,10 @@
 
 import { createContext, useContext, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
-import { setToken } from '../api/client'
+import { setToken, getToken } from '../api/client'
 import * as authApi from '../api/auth'
 import type { Me } from '../types'
 import { getMe } from '../api/user'
-import { login as apiLogin, signup as apiSignup, logout as apiLogout } from '../api/auth'
 
 interface AuthState {
   // null = not logged in (or still loading)
@@ -52,15 +51,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function login(username: string, password: string) {
     const { token } = await authApi.login(username, password)
     setToken(token)
-  async function login(username: string, password: string) {
-    await apiLogin(username, password)
     await fetchMe()
   }
 
   async function signup(username: string, password: string) {
     const { token } = await authApi.signup(username, password)
     setToken(token)
-    await apiSignup(username, password)
     await fetchMe()
   }
 
@@ -68,15 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await authApi.logout()
     } catch {
-      // ignore - we're clearing local state regardless
-    } finally {
-      setToken(null)
-      setMe(null)
-    }
-    try {
-      await apiLogout()
-    } catch (err) {
-      console.error('Logout failed on backend:', err)
+      // do nohting
     } finally {
       setToken(null)
       setMe(null)
