@@ -3,19 +3,20 @@ import ProgressBar from '../components/ProgressBar'
 import Keyboard from '../components/Keyboard'
 import { useNavigate } from 'react-router-dom'
 import { logout } from '../api/auth'
-
-// =============================================================================
-// !!! HARDCODED DUMMY DATA !!! replace with listInventory() from ../api/shop
-// once the backend is wired up
-// =============================================================================
-const DUMMY_INVENTORY = [
-  { id: 's-1', name: 'Blue Keycaps', emoji: '🟦' },
-  { id: 's-4', name: 'Cat Sticker', emoji: ':3' },
-]
+import { useEffect, useState } from 'react'
+import { listInventory } from '../api/shop'
+import type { ShopItem } from '../types'
 
 export default function Profile() {
   const { me, refresh } = useAuth()
   const navigate = useNavigate()
+  const [inventory, setInventory] = useState<ShopItem[]>([])
+
+  useEffect(() => {
+    listInventory()
+      .then(setInventory)
+      .catch((err) => console.error('Failed to load inventory:', err))
+  }, [])
 
   const handleLogout = async () => {
     try {
@@ -30,9 +31,6 @@ export default function Profile() {
   }
 
 
-  // TODO: show stats (coins, solved count, keys unlocked), the inventory
-  // (listInventory), and an edit-username form that calls updateUsername
-  // then refresh()
   return (
     <div className="p-6 mx-auto flex flex-col gap-6 text-slate-800">
       <div className="flex items-center justify-between bg-white p-6 rounded-xl border-2 border-slate-200">
@@ -80,9 +78,8 @@ export default function Profile() {
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {DUMMY_INVENTORY.map((item) => (
+            {inventory.map((item) => (
               <div key={item.id} className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-1.5 text-center">
-                <span className="text-2xl">{item.emoji}</span>
                 <span className="text-xs font-bold text-slate-700">{item.name}</span>
               </div>
             ))}

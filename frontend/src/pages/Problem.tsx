@@ -132,9 +132,9 @@ export default function Problem() {
               <select 
                 className="bg-transparent text-xs font-semibold text-slate-700
                 focus:outline-none cursor-pointer py-1 px-2 rounded-xl hover:bg-slate-100">
-                <option value="op1">option1</option>
-                <option value="op2">option2</option>
-                <option value="op3">option3</option>
+                <option value="op1">Python</option>
+                <option value="op2">C</option>
+                <option value="op3">Java</option>
               </select>
             </div>
             <div className="flex items-center gap-2">

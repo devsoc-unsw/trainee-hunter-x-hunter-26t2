@@ -5,6 +5,15 @@ from psycopg.rows import DictRow
 
 from models import User
 
+async def count_solved(conn: psycopg.AsyncConnection[DictRow], user_id: UUID) -> int:
+    row = await (
+        await conn.execute(
+            "select count(*) as count from completions where user_id = %s",
+            (user_id,),
+        )
+    ).fetchone()
+    assert row is not None
+    return row["count"]
 
 async def create_user(
     conn: psycopg.AsyncConnection[DictRow], username: str, password_hash: str

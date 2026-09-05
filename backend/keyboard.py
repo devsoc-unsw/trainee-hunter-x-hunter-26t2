@@ -22,9 +22,10 @@ STARTING_KEYS = 4
 def unlocked_key_count(solved_count: int) -> int:
     # how many keys are unlocked. starts at STARTING_KEYS, grows with solves,
     # caps at len(KEY_UNLOCK_ORDER)
-    raise NotImplementedError
+    count = STARTING_KEYS + (solved_count // SOLVES_PER_KEY)
+    return min(count, len(KEY_UNLOCK_ORDER))
 
 
 def unlocked_keys(solved_count: int) -> list[str]:
     # the actual key characters that are unlocked
-    raise NotImplementedError
+    return KEY_UNLOCK_ORDER[:unlocked_key_count(solved_count)]

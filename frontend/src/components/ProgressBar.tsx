@@ -1,22 +1,33 @@
 // import { Link } from 'react-router-dom'
 // import { useAuth } from '../auth/AuthContext'
+import { useEffect, useState } from 'react'
+import type { QuestionSummary } from '../types'
+import { listQuestions } from '../api/questions'
 
 export default function ProgressBar() {
-    // const { me } = useAuth()
+    const [questions, setQuestions] = useState<QuestionSummary[]>([])
 
-    // =========================================================================
-    // !!! HARDCODED DUMMY DATA !!! the backend has no per-difficulty stats
-    // endpoint yet - derive from listQuestions() or extend the backend later
-    // =========================================================================
-    const stats = {
-    solved: 3,
-    total: 4041,
-    attempting: 20,
-    easy: { solved: 3, total: 962 },
-    medium: { solved: 200, total: 2109 },
-    hard: { solved: 5, total: 970 }
+    useEffect(() => {
+        listQuestions()
+            .then(setQuestions)
+            .catch((err) => console.error('Failed to load questions:', err))
+    }, [])
+
+    const byDifficulty = (difficulty: 'easy' | 'medium' | 'hard') => {
+        const inDifficulty = questions.filter((q) => q.difficulty === difficulty)
+        return {
+            solved: inDifficulty.filter((q) => q.solved).length,
+            total: inDifficulty.length,
+        }
     }
 
+    const stats = {
+        solved: questions.filter((q) => q.solved).length,
+        total: questions.length,
+        easy: byDifficulty('easy'),
+        medium: byDifficulty('medium'),
+        hard: byDifficulty('hard'),
+    }
 
     const radius = 52
     const circumference = 2 * Math.PI * radius
@@ -114,11 +125,6 @@ export default function ProgressBar() {
                     <div className="flex items-center gap-1 text-xs font-bold text-lime-600 mt-0.5">
                     <span>✓</span> Solved
                     </div>
-                    {stats.attempting > 0 && (
-                    <span className="text-[11px] font-medium text-slate-400 mt-1">
-                        {stats.attempting} Attempting
-                    </span>
-                    )}
                 </div>
             </div>
             {/* rhs */}

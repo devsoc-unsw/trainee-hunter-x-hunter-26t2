@@ -22,9 +22,9 @@ export default function Login() {
   return (
     <div className="page m-6 flex flex-col items-center justify-center">
       <div className="mb-2">
-        {/* TEMP!! FIX LATER */}
-        {error && <p className="error">{error}</p>}
-        {/* FIX!! LATER */}
+        <div className="w-full mb-4 p-3 bg-red-50 border-2 border-red-200 text-red-600 rounded-xl font-medium text-center ">
+          Error: {error}!
+        </div>
         <h1 className="text-3xl font-black text-lime-600">Welcome back</h1>
         <h2 className="text-xl text-slate-500">It's great to see you!</h2>
       </div>

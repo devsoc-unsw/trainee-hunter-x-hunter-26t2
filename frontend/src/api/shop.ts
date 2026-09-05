@@ -1,16 +1,17 @@
 import type { BuyResponse, ShopItem } from '../types'
+import { apiGet, apiPost } from './client'
 
 export async function listShop(): Promise<ShopItem[]> {
   // GET /shop
-  throw new Error('not implemented')
+  return apiGet<ShopItem[]>('/shop')
 }
 
 export async function listInventory(): Promise<ShopItem[]> {
   // GET /shop/inventory
-  throw new Error('not implemented')
+  return apiGet<ShopItem[]>('/shop/inventory')
 }
 
-export async function buyItem(_id: string): Promise<BuyResponse> {
+export async function buyItem(id: string): Promise<BuyResponse> {
   // POST /shop/{id}/buy
-  throw new Error('not implemented')
+  return apiPost<BuyResponse>(`/shop/${id}/buy`)
 }

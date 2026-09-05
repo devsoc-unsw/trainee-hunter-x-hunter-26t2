@@ -1,16 +1,17 @@
 import type { QuestionDetail, QuestionSummary, SubmitResponse } from '../types'
+import { apiGet, apiPost } from './client'
 
 export async function listQuestions(): Promise<QuestionSummary[]> {
   // GET /questions
-  throw new Error('not implemented')
+  return apiGet<QuestionSummary[]>('/questions')
 }
 
-export async function getQuestion(_id: string): Promise<QuestionDetail> {
+export async function getQuestion(id: string): Promise<QuestionDetail> {
   // GET /questions/{id}
-  throw new Error('not implemented')
+  return apiGet<QuestionDetail>(`/questions/${id}`)
 }
 
-export async function submitCode(_id: string, _code: string): Promise<SubmitResponse> {
+export async function submitCode(id: string, code: string): Promise<SubmitResponse> {
   // POST /questions/{id}/submit with {code}
-  throw new Error('not implemented')
+  return apiPost<SubmitResponse>(`/questions/${id}/submit`, { code })
 }
