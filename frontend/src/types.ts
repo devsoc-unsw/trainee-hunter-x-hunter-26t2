@@ -15,6 +15,7 @@ export interface Me {
 export interface TestCase {
   input: unknown[]
   expected: unknown
+  is_sample?: boolean
 }
 
 export interface QuestionSummary {
@@ -43,6 +44,10 @@ export interface TestResult {
   expected: unknown
   got: unknown
   error: string | null
+  // true when the backend blanked input/expected/got because this is a hidden
+  // test case. draw these as a bare 'Test 7 (hidden)' row - the fields are
+  // empty, not missing
+  hidden: boolean
 }
 
 export interface SubmitResponse {
@@ -50,6 +55,13 @@ export interface SubmitResponse {
   results: TestResult[]
   coins_earned: number
   first_solve: boolean
+}
+
+// what the Run button gets back. no coins_earned/first_solve - a run doesn't
+// touch the database
+export interface RunResponse {
+  passed: boolean
+  results: TestResult[]
 }
 
 export interface ShopItem {

@@ -1,7 +1,19 @@
 slug,input,expected,is_sample
 two-sum,"[[2, 7, 11, 15], 9]","[0, 1]",true
-two-sum,"[[3, 2, 4], 6]","[1, 2]",false
+two-sum,"[[3, 2, 4], 6]","[1, 2]",true
 two-sum,"[[3, 3], 6]","[0, 1]",false
+two-sum,"[[1, 2, 3, 4, 5], 9]","[3, 4]",false
+two-sum,"[[-3, 4, 3, 90], 0]","[0, 2]",false
+two-sum,"[[0, 4, 3, 0], 0]","[0, 3]",false
+two-sum,"[[5, 75, 25], 100]","[1, 2]",false
+two-sum,"[[2, 5, 5, 11], 10]","[1, 2]",false
+two-sum,"[[1, 3, 4, 2], 6]","[2, 3]",false
 reverse-string,"[""hello""]","""olleh""",true
+reverse-string,"[""ab""]","""ba""",true
 reverse-string,"[""""]","""""",false
-reverse-string,"[""ab""]","""ba""",false
+reverse-string,"[""a""]","""a""",false
+reverse-string,"[""racecar""]","""racecar""",false
+reverse-string,"[""Hello, World!""]","""!dlroW ,olleH""",false
+reverse-string,"[""12345""]","""54321""",false
+reverse-string,"[""keebloom""]","""moolbeek""",false
+reverse-string,"[""ab cd""]","""dc ba""",false
