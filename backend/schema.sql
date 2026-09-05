@@ -74,7 +74,7 @@ create table shop_items (
     price     integer not null check (price >= 0),
     image_url text not null default '',
     -- what the item is for: a skin recolours a key, an accessory sits on one
-    kind      text not null check (kind in ('key_skin', 'accessory')),
+    kind      text not null check (kind in ('key_skin', 'accessory', 'key_unlock')),
     -- fish go on water keys, flowers go on land ones. this makes that rule
     -- 'accessory.habitat = skin.habitat' instead of a special case per item.
     habitat   text not null check (habitat in ('land', 'water'))

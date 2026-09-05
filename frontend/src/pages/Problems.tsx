@@ -1,18 +1,8 @@
 import { Link } from 'react-router-dom';
 import type { QuestionSummary } from '../types';
+import { useEffect, useState } from 'react'
+import { listQuestions } from '../api/questions';
 
-// =============================================================================
-// !!! HARDCODED DUMMY DATA !!! replace with listQuestions() from ../api/questions
-// once the backend is wired up
-// =============================================================================
-const DUMMY_QUESTIONS: QuestionSummary[] = [
-  { id: '1', slug: 'two-sum', name: 'Two Sum', difficulty: 'easy', solved: true },
-  { id: '2', slug: 'reverse-string', name: 'Reverse String', difficulty: 'easy', solved: true },
-  { id: '3', slug: 'fizzbuzz', name: 'FizzBuzz', difficulty: 'easy', solved: true },
-  { id: '4', slug: 'valid-parentheses', name: 'Valid Parentheses', difficulty: 'medium', solved: false },
-  { id: '5', slug: 'merge-intervals', name: 'Merge Intervals', difficulty: 'medium', solved: false },
-  { id: '6', slug: 'trapping-rain-water', name: 'Trapping Rain Water', difficulty: 'hard', solved: false },
-]
 
 const DIFFICULTY_COLOR = {
   easy: 'text-green-600',
@@ -23,7 +13,19 @@ const DIFFICULTY_COLOR = {
 const DIFFICULTY_LABEL = { easy: 'Easy', medium: 'Medium', hard: 'Hard' } as const
 
 export default function Problems() {
-  // TODO: swap DUMMY_QUESTIONS for listQuestions() on mount (useEffect + useState)
+  const [questions, setQuestions] = useState<QuestionSummary[]>([])
+  const [search, setSearch] = useState('')
+
+  useEffect(() => {
+    listQuestions()
+      .then(setQuestions)
+      .catch((err) => console.error('Failed to load questions:', err))
+  }, [])
+
+  const filtered = questions.filter((q) =>
+    q.name.toLowerCase().includes(search.toLowerCase())
+  )
+
   return (
     <div className="page">
       <div className="">
@@ -33,6 +35,8 @@ export default function Problems() {
           focus-within:bg-white focus-within:border-slate-400 ">
             <input type="text"
             placeholder="Search..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
             className="w-full h-full bg-transparent font-semibold text-slate-950 placeholder-slate-600/50
             focus: outline-none"/>
           </div>
@@ -59,7 +63,7 @@ export default function Problems() {
           </button>
         </div>
         <div className="flex flex-col">
-          {DUMMY_QUESTIONS.map((q) => (
+          {filtered.map((q) => (
             <Link key={q.id} to={`/problems/${q.id}`}
             className={`flex items-center justify-between p-2 rounded-xl ${q.solved ? 'bg-lime-50' : 'bg-slate-50'}`}>
               <div className="flex items-center gap-3">
@@ -67,7 +71,7 @@ export default function Problems() {
                   {q.solved ? '✓' : ''}
                 </span>
                 <span className="font-bold text-gray-900">
-                  {q.id} - {q.name}
+                  {q.name}
                 </span>
               </div>
 

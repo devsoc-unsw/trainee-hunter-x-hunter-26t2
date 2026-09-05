@@ -12,7 +12,7 @@ router = APIRouter(prefix="/questions", tags=["questions"])
 
 
 @router.get("", response_model=list[QuestionSummary])
-async def list_questions(conn: Conn, user: CurrentUser):
+async def list_all_questions(conn: Conn, user: CurrentUser):
     # every question, with solved=True for the ones this user has done.
     # get the solved ids once with list_solved_ids, don't query per question
     questions = await list_questions(conn)

@@ -5,45 +5,7 @@ import TestResults from '../components/TestResults'
 import { useAuth } from '../auth/AuthContext'
 import Keyboard from '../components/Keyboard';
 import type { QuestionDetail, SubmitResponse } from '../types'
-
-// =============================================================================
-// !!! HARDCODED DUMMY DATA !!! replace with getQuestion(id) from ../api/questions
-// once the backend is wired up. the fake handleSubmit below always passes -
-// replace it with submitCode(id, code)
-// =============================================================================
-const DUMMY_DETAILS: Record<string, QuestionDetail> = {
-  '1': {
-    id: '1', slug: 'two-sum', name: 'Two Sum', difficulty: 'easy', solved: true,
-    details: 'Given a list of numbers and a target, return the indices of the two numbers that add up to the target. Each input has exactly one solution, and you may not use the same element twice.',
-    function_name: 'two_sum',
-    starter_code: 'def two_sum(nums, target):\n    pass\n',
-    samples: [
-      { input: [[2, 7, 11, 15], 9], expected: [0, 1] },
-      { input: [[3, 2, 4], 6], expected: [1, 2] },
-    ],
-  },
-  '2': {
-    id: '2', slug: 'reverse-string', name: 'Reverse String', difficulty: 'easy', solved: true,
-    details: 'Given a string, return it reversed.',
-    function_name: 'reverse_string',
-    starter_code: 'def reverse_string(s):\n    pass\n',
-    samples: [
-      { input: ['hello'], expected: 'olleh' },
-      { input: ['ab'], expected: 'ba' },
-    ],
-  },
-}
-
-// generic filler for questions without hand-written details yet
-function fallbackDetail(id: string): QuestionDetail {
-  return {
-    id, slug: `question-${id}`, name: `Question ${id}`, difficulty: 'medium', solved: false,
-    details: 'Details for this question have not been written yet. Solve it anyway :3',
-    function_name: 'solve',
-    starter_code: 'def solve():\n    pass\n',
-    samples: [{ input: [1], expected: 1 }],
-  }
-}
+import { getQuestion, submitCode } from '../api/questions'
 
 export default function Problem() {
   // the question id from the url, /problems/:id
@@ -51,7 +13,10 @@ export default function Problem() {
   const { refresh, me } = useAuth()
   const [code, setCode] = useState('')
   const [result, setResult] = useState<SubmitResponse | null>(null)
+  const [loadError, setLoadError] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState('')
+  const [question, setQuestion] = useState<QuestionDetail | null>(null)
 
   const [activeKey, setActiveKey] = useState<string | null>(null)
   const [pressCounts, setPressCounts] = useState<Record<string, number>>({})
@@ -66,32 +31,50 @@ export default function Problem() {
     }))
   }
 
-  const question = DUMMY_DETAILS[id ?? ''] ?? fallbackDetail(id ?? '?')
-
   useEffect(() => {
-    setCode(question.starter_code)
+    if (!id) return
+    setQuestion(null)
+    setLoadError('')
     setResult(null)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    getQuestion(id)
+      .then((q) => {
+        setQuestion(q)
+        setCode(q.starter_code)
+      })
+      .catch((err) => {
+        console.error('Failed to load question:', err)
+        setLoadError('could not load this question')
+      })
   }, [id])
 
-  //! HARDCODED DUMMY: fakes a passing submission after 500ms.
-  //! real version calls submitCode(id, code) and can fail
-  function handleSubmit() {
+  async function handleSubmit() {
+    if (!id) return
     setSubmitting(true)
+    setSubmitError('')
     setResult(null)
-    setTimeout(() => {
-      setResult({
-        passed: true,
-        coins_earned: 10,
-        first_solve: !question.solved,
-        results: question.samples.map((s) => ({
-          passed: true, input: s.input, expected: s.expected, got: s.expected, error: null,
-        })),
-      })
+    try {
+      const res = await submitCode(id, code)
+      setResult(res)
+      if (res.first_solve) {
+        setQuestion((q) => (q ? { ...q, solved: true } : q))
+      }
+      await refresh()
+    } catch (err) {
+      console.error('Submit failed:', err)
+      setSubmitError('something went wrong running your code')
+    } finally {
       setSubmitting(false)
-      refresh()
-    }, 500)
+    }
   }
+
+  if (loadError) {
+    return <div className="m-4 p-4 text-red-600 font-bold">{loadError}</div>
+  }
+
+  if (!question) {
+    return <div className="m-4 p-4 text-slate-500">Loading...</div>
+  }
+
 
   return (
     <div className="m-4 p-4 page grid grid-cols-2 gap-2 text-slate-900">
@@ -132,9 +115,7 @@ export default function Problem() {
               <select 
                 className="bg-transparent text-xs font-semibold text-slate-700
                 focus:outline-none cursor-pointer py-1 px-2 rounded-xl hover:bg-slate-100">
-                <option value="op1">Python</option>
-                <option value="op2">C</option>
-                <option value="op3">Java</option>
+                <option value="python">Python</option>
               </select>
             </div>
             <div className="flex items-center gap-2">
@@ -156,7 +137,7 @@ export default function Problem() {
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0 3 3m-3-3-3 3M6.75 19.5a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75Z" />
                 </svg>
-                Submit
+                {submitting ? 'Submitting...' : 'Submit'}
               </button>
             </div>
 
