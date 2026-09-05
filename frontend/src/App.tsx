@@ -15,6 +15,7 @@ import Problems from './pages/Problems'
 import Problem from './pages/Problem'
 import Shop from './pages/Shop'
 import Profile from './pages/Profile'
+import Landing from './pages/Landing'
 
 // wraps pages that need a login. kicks you to /login if you're not
 function RequireAuth({ children }: { children: ReactNode }) {
@@ -24,12 +25,18 @@ function RequireAuth({ children }: { children: ReactNode }) {
   return children
 }
 
+function IndexRoute() {
+  const { me, loading } = useAuth()
+  if (loading) return <p>loading...</p>
+  return me ? <Home /> : <Landing />
+}
+
 export default function App() {
   return (
     <>
       <NavBar />
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<IndexRoute />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/problems" element={<RequireAuth><Problems /></RequireAuth>} />

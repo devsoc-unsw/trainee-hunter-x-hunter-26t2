@@ -27,9 +27,11 @@ export default function Signup() {
   return (
     <div className="page m-6 flex flex-col items-center justify-center">
       <div className="flex flex-col mb-2">
-        {/* TEMP!! FIX LATER */}
-        {error && <p className="error">{error}</p>}
-        {/* FIX!! LATER */}
+        {error && (
+          <div className="w-full mb-4 p-3 bg-red-50 border-2 border-red-200 text-red-600 rounded-xl font-medium text-center ">
+            Error: {error}!
+          </div>
+        )}
         <h1 className="text-3xl font-black text-lime-600">Create account</h1>
         <h2 className="text-xl text-slate-500">We're excited to have you!</h2>
       </div>

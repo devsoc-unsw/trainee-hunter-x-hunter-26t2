@@ -5,6 +5,8 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { getToken, setToken } from '../api/client'
 import type { Me } from '../types'
+import { getMe } from '../api/user'
+import { login as apiLogin, signup as apiSignup, logout as apiLogout } from '../api/auth'
 
 interface AuthState {
   // null = not logged in (or still loading)
@@ -24,52 +26,65 @@ const AuthContext = createContext<AuthState | null>(null)
 // backend. any username/password logs in. swap every function body marked
 // "DUMMY" below for the real api/auth + api/user calls when the backend exists.
 // =============================================================================
-const FAKE_USERNAME_KEY = 'fake_username'
+// const FAKE_USERNAME_KEY = 'fake_username'
 
-function fakeMe(username: string): Me {
-  return { id: 'u-1', username, coins: 135, solved_count: 3, unlocked_keys: 7 }
-}
+// function fakeMe(username: string): Me {
+//   return { id: 'u-1', username, coins: 135, solved_count: 3, unlocked_keys: 7 }
+// }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [me, setMe] = useState<Me | null>(null)
   const [loading, setLoading] = useState(true)
 
+  async function fetchMe() {
+    try {
+      const user = await getMe()
+      setMe(user)
+    } catch (err) {
+      console.error('Failed to restore session:', err)
+      setToken(null)
+      setMe(null)
+    }
+  }
+
   // on page load, if there's a token in localStorage, try to fetch /users/me
   // with it. if that fails the token is stale, throw it away
   useEffect(() => {
     async function restore() {
-      //! DUMMY: real version should getMe() and setToken(null) on failure
       if (getToken()) {
-        setMe(fakeMe(localStorage.getItem(FAKE_USERNAME_KEY) ?? 'usernameee :3'))
+        await fetchMe()
       }
       setLoading(false)
     }
     restore()
   }, [])
 
-  //! DUMMY: always succeeds. real version calls api/auth login then getMe()
-  async function login(username: string, _password: string) {
-    setToken('fake-token')
-    localStorage.setItem(FAKE_USERNAME_KEY, username)
-    setMe(fakeMe(username))
+  async function login(username: string, password: string) {
+    await apiLogin(username, password)
+    await fetchMe()
   }
 
-  //! DUMMY: same as login. real version hits signup
   async function signup(username: string, password: string) {
-    await login(username, password)
+    await apiSignup(username, password)
+    await fetchMe()
   }
 
   async function logout() {
-    //! DUMMY: real version tells the backend first
-    setToken(null)
-    localStorage.removeItem(FAKE_USERNAME_KEY)
-    setMe(null)
+    try {
+      await apiLogout()
+    } catch (err) {
+      console.error('Logout failed on backend:', err)
+    } finally {
+      setToken(null)
+      setMe(null)
+    }
   }
 
   async function refresh() {
-    //! DUMMY: real version re-fetches /users/me
     if (getToken()) {
-      setMe(fakeMe(localStorage.getItem(FAKE_USERNAME_KEY) ?? 'usernameee :3'))
+      await fetchMe()
+    } else {
+      setMe(null)
     }
   }
 
