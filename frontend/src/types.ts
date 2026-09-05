@@ -54,10 +54,26 @@ export interface SubmitResponse {
 
 export interface ShopItem {
   id: string
+  // stable name for the item, eg 'blue-tulip'. map this to an imported png -
+  // vite content-hashes src/assets, so image_url from the api can't be used
+  // as a src directly
+  slug: string
   name: string
   price: number
   image_url: string
+  kind: 'key_skin' | 'accessory'
+  // an accessory only goes on a key of the same habitat: fish on water keys,
+  // flowers and veg on the rest
+  habitat: 'land' | 'water'
   owned: boolean
+}
+
+// how one key is dressed. keys the user hasn't touched aren't in the list -
+// draw those as the default grass key with nothing on it.
+export interface KeyDecor {
+  key_char: string
+  skin_slug: string | null
+  accessory_slug: string | null
 }
 
 export interface BuyResponse {

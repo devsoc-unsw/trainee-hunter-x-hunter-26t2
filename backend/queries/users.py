@@ -16,7 +16,7 @@ async def create_user(
             """
             insert into users (username, password_hash)
             values (%s, %s)
-            returning id, username, coins
+            returning id, username, coins, keys_bought
             """,
             (username, password_hash),
         )
@@ -38,7 +38,8 @@ async def get_user_by_id(conn: psycopg.AsyncConnection[DictRow], user_id: UUID) 
     # None if no such user
     row = await (
         await conn.execute(
-            "select id, username, coins from users where id = %s", (user_id,)
+            "select id, username, coins, keys_bought from users where id = %s",
+            (user_id,),
         )
     ).fetchone()
     return User(**row) if row else None
@@ -82,3 +83,30 @@ async def spend_coins(
         )
     ).fetchone()
     return row["coins"] if row else None
+
+
+async def buy_key_unlock(
+    conn: psycopg.AsyncConnection[DictRow], user_id: UUID, price: int, max_keys: int
+) -> dict | None:
+    # pay for one more key. returns the new coins and keys_bought, or None if
+    # they couldn't afford it or the keyboard is already full.
+    #
+    # same shape as spend_coins above, with a second guard: both conditions
+    # live in the where clause, so neither the balance can go negative nor
+    # keys_bought run past the end of KEY_UNLOCK_ORDER, even if two requests
+    # land at once. no row back means one of the two guards said no - the
+    # route decides which by looking at the user it already loaded.
+    #
+    # max_keys is how many are BUYABLE, ie len(KEY_UNLOCK_ORDER) minus the
+    # ones everyone starts with. keyboard.py owns both numbers.
+    return await (
+        await conn.execute(
+            """
+            update users
+            set coins = coins - %s, keys_bought = keys_bought + 1
+            where id = %s and coins >= %s and keys_bought < %s
+            returning coins, keys_bought
+            """,
+            (price, user_id, price, max_keys),
+        )
+    ).fetchone()
