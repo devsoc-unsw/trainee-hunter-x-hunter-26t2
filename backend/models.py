@@ -66,6 +66,10 @@ class TestCase(BaseModel):
 
     input: list[Any]
     expected: Any
+    # samples are shown on the question page, so their input/expected are
+    # already public. the submit route uses this to decide what it's allowed
+    # to reveal about a failure - see visible_results in routers/submissions.py
+    is_sample: bool = False
 
 
 class QuestionSummary(BaseModel):
@@ -100,11 +104,16 @@ class SubmitRequest(BaseModel):
 
 
 class TestResult(BaseModel):
+    __test__ = False  # not a pytest class, it just has Test in the name
+
     passed: bool
     input: list[Any]
     expected: Any
     got: Any = None
     error: str | None = None
+    # true when the route blanked input/expected/got because this is a hidden
+    # test case. the frontend draws a bare 'Test 7 (hidden)' row for these.
+    hidden: bool = False
 
 
 class SubmitResponse(BaseModel):
@@ -113,6 +122,17 @@ class SubmitResponse(BaseModel):
     coins_earned: int
     # true only the first time you solve it
     first_solve: bool
+
+
+class RunResponse(BaseModel):
+    """What the Run button gets back: the sample tests, judged, and nothing else.
+
+    Deliberately not SubmitResponse - a run doesn't touch completions or the
+    coin balance, so it has no coins_earned or first_solve to be honest about.
+    """
+
+    passed: bool
+    results: list[TestResult]
 
 
 # ---------- shop ----------

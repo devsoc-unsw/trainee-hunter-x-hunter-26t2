@@ -6,7 +6,8 @@ from deps import Conn, CurrentUser
 from models import QuestionDetail, QuestionSummary
 from queries.progress import list_solved_ids
 from queries.questions import get_question as get_question_row
-from queries.questions import get_test_cases, list_questions
+from queries.questions import get_test_cases
+from queries.questions import list_questions as list_question_rows
 
 router = APIRouter(prefix="/questions", tags=["questions"])
 
@@ -15,7 +16,7 @@ router = APIRouter(prefix="/questions", tags=["questions"])
 async def list_questions(conn: Conn, user: CurrentUser):
     # every question, with solved=True for the ones this user has done.
     # get the solved ids once with list_solved_ids, don't query per question
-    questions = await list_questions(conn)
+    questions = await list_question_rows(conn)
     solved_ids = await list_solved_ids(conn, user.id)
     return [
         QuestionSummary(**q, solved=q["id"] in solved_ids)
