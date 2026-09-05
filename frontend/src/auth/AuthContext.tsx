@@ -17,6 +17,10 @@ interface AuthState {
   logout: () => Promise<void>
   // call after anything that changes coins/solves so the navbar updates
   refresh: () => Promise<void>
+  // bump the displayed coin balance by an amount the server has ALREADY
+  // banked and told us about, without a round trip to re-read it.
+  // display-only: the next refresh() re-reads the real balance.
+  addCoins: (amount: number) => void
 }
 
 const AuthContext = createContext<AuthState | null>(null)
@@ -79,8 +83,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  // the keylogger pays a coin every PRESSES_PER_COIN presses and says so in
+  // the response body, so the navbar can move without asking /users/me what
+  // it already knows. this must only ever be fed a number the SERVER
+  // reported - never one the frontend worked out for itself, or the two
+  // would be re-implementing the same payout rule and drifting apart.
+  function addCoins(amount: number) {
+    if (amount === 0) return
+    setMe((prev) => (prev ? { ...prev, coins: prev.coins + amount } : prev))
+  }
+
   return (
-    <AuthContext.Provider value={{ me, loading, login, signup, logout, refresh }}>
+    <AuthContext.Provider value={{ me, loading, login, signup, logout, refresh, addCoins }}>
       {children}
     </AuthContext.Provider>
   )

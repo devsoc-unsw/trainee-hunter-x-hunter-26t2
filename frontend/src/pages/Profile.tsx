@@ -3,9 +3,10 @@ import ProgressBar from '../components/ProgressBar'
 import Keyboard from '../components/Keyboard'
 import { useNavigate } from 'react-router-dom'
 import { logout } from '../api/auth'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { listInventory } from '../api/shop'
 import type { ShopItem } from '../types'
+import { unplaced } from '../types'
 import { SHOP_ITEM_IMAGES } from '../lib/shopImages'
 
 export default function Profile() {
@@ -13,11 +14,15 @@ export default function Profile() {
   const navigate = useNavigate()
   const [inventory, setInventory] = useState<ShopItem[]>([])
 
-  useEffect(() => {
+  // decorating a key changes what's free to plant, so this has to be
+  // re-readable rather than fetched once on mount
+  const loadInventory = useCallback(() => {
     listInventory()
       .then(setInventory)
       .catch((err) => console.error('Failed to load inventory:', err))
   }, [])
+
+  useEffect(loadInventory, [loadInventory])
 
   const handleLogout = async () => {
     try {
@@ -67,7 +72,17 @@ export default function Profile() {
           </div>
 
           <div className="w-full bg-slate-50 p-4 rounded-xl border-2 border-slate-200">
-            <Keyboard unlockedCount={me?.unlocked_keys ?? 0} editable/>
+            <Keyboard
+              unlockedKeys={me?.unlocked_keys ?? []}
+              unlockCredits={me?.unlock_credits ?? 0}
+              editable
+              // a placement or an unlock changes both /users/me (coins,
+              // credits) and what's left in the inventory panel
+              onChange={async () => {
+                await refresh()
+                loadInventory()
+              }}
+            />
           </div>
         </div>
 
@@ -75,16 +90,24 @@ export default function Profile() {
         <div className="bg-white p-6 rounded-2xl border-2 border-slate-200 flex flex-col gap-4 mt-0">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <h2 className="text-lg font-black text-slate-900">Inventory</h2>
-            <span className="text-xs font-semibold text-slate-400">Items owned</span>
+            <span className="text-xs font-semibold text-slate-400">Free to plant / owned</span>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {inventory.map((item) => (
-              <div key={item.id} className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-1.5 text-center">
+            {inventory.filter((item) => item.quantity > 0).map((item) => (
+              <div key={item.id} className="relative p-3 bg-slate-50 border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-1.5 text-center">
+                <span className="absolute top-1.5 right-1.5 text-[10px] font-bold text-slate-500 bg-white border border-slate-200 rounded-full px-1.5 py-0.5">
+                  {unplaced(item)}/{item.quantity}
+                </span>
                 <img src={SHOP_ITEM_IMAGES[item.slug]} alt={item.name} className="w-12 h-12 object-contain" />
                 <span className="text-xs font-bold text-slate-700">{item.name}</span>
               </div>
             ))}
+            {inventory.every((item) => item.quantity === 0) && (
+              <p className="text-xs text-slate-400 italic col-span-full">
+                Nothing bought yet — the shop has flowers.
+              </p>
+            )}
           </div>
         </div>
       </div>

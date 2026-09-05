@@ -3,7 +3,9 @@ from uuid import UUID
 import psycopg
 from psycopg.rows import DictRow
 
+import keyboard
 from models import User
+from queries.keys import grant_keys
 
 async def count_solved(conn: psycopg.AsyncConnection[DictRow], user_id: UUID) -> int:
     row = await (
@@ -31,7 +33,14 @@ async def create_user(
         )
     ).fetchone()
     assert row is not None  # insert either returns a row or raises
-    return User(**row)
+    user = User(**row)
+
+    # every account starts with the home row already unlocked. this lives here
+    # rather than in the signup route so that a user created by any path has a
+    # keyboard - key_decor's foreign key into key_unlocks means a user with no
+    # unlocked keys can't decorate anything at all.
+    await grant_keys(conn, user.id, keyboard.STARTING_KEY_CHARS)
+    return user
 
 
 async def get_user_by_username(

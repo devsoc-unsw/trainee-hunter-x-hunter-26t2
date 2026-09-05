@@ -1,10 +1,11 @@
 -- full schema for the app. reset_db.py drops everything and runs this file.
 -- if you change a table here, re-run reset_db.py (it wipes all data).
 
--- decor and presses drop first: key_decor has a composite foreign key into
--- inventory, so it has to go before the table it points at.
+-- decor and presses drop first: key_decor has composite foreign keys into both
+-- inventory and key_unlocks, so it has to go before the tables it points at.
 drop table if exists key_decor cascade;
 drop table if exists key_presses cascade;
+drop table if exists key_unlocks cascade;
 drop table if exists inventory cascade;
 drop table if exists shop_items cascade;
 drop table if exists completions cascade;
@@ -80,18 +81,44 @@ create table shop_items (
     habitat   text not null check (habitat in ('land', 'water'))
 );
 
--- what each user owns. primary key stops you buying the same thing twice.
+-- what each user owns, and how many of it. one row per (user, item) no matter
+-- how many copies - the quantity is a column, not extra rows, so key_decor's
+-- composite foreign key below still has something stable to point at.
+--
+-- NEVER delete a row here when quantity hits 0. key_decor's foreign keys are
+-- 'on delete cascade', so dropping an inventory row wipes the whole key_decor
+-- row - including the OTHER slot. a row sitting at quantity 0 is what keeps
+-- that from happening.
 create table inventory (
     user_id   uuid not null references users (id) on delete cascade,
     item_id   uuid not null references shop_items (id) on delete cascade,
+    -- how many the user has BOUGHT. how many are currently placed is counted
+    -- off key_decor instead of stored, so the two can never disagree and
+    -- taking an item off a key frees it with no refund code anywhere.
+    quantity  integer not null default 1 check (quantity >= 0),
     bought_at timestamptz not null default now(),
     primary key (user_id, item_id)
+);
+
+-- which keys a user has unlocked. one row per key, inserted when they spend an
+-- unlock credit on it - so WHICH keys is a choice, not a prefix of a fixed
+-- order. queries.users.create_user seeds the starting keys for every account.
+--
+-- how many unlocks a user has EARNED is still arithmetic (keyboard.py's
+-- unlock_allowance, off solves and users.keys_bought); this table is what they
+-- spent them on. credits left = allowance - count(*) here.
+create table key_unlocks (
+    user_id     uuid not null references users (id) on delete cascade,
+    key_char    text not null check (char_length(key_char) = 1),
+    unlocked_at timestamptz not null default now(),
+    primary key (user_id, key_char)
 );
 
 -- how one user has dressed up one key. no row (or a null slot) = the default:
 -- a grass key with nothing on it, which is what Keyboard.tsx already draws.
 --
--- must be created AFTER inventory because of the composite foreign keys.
+-- must be created AFTER inventory and key_unlocks because of the composite
+-- foreign keys.
 create table key_decor (
     user_id      uuid not null references users (id) on delete cascade,
     key_char     text not null check (char_length(key_char) = 1),
@@ -102,9 +129,17 @@ create table key_decor (
     -- also the only index this table needs - 'where user_id = %s' is the
     -- only way anything reads it.
     primary key (user_id, key_char),
+    -- 'you can only decorate a key you've unlocked', as a database guarantee.
+    -- same trick as the two below: key_unlocks' primary key is already exactly
+    -- (user_id, key_char) in that order.
+    foreign key (user_id, key_char) references key_unlocks (user_id, key_char) on delete cascade,
     -- 'you can only place what you own', as a database guarantee rather than
     -- route code. works because inventory's primary key is already exactly
     -- (user_id, item_id) in that order.
+    --
+    -- HOW MANY you can place is not here: it's quantity minus the number of
+    -- rows in this table pointing at the item, which a check constraint can't
+    -- see. that guard lives in queries.shop.units_available.
     --
     -- the slots are nullable on purpose: postgres foreign keys default to
     -- MATCH SIMPLE, which skips the check entirely when any column of the

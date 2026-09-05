@@ -29,20 +29,37 @@ decoration gameplay the database is ready for but no route serves yet, and
 | [`test_cases`](#test_cases) | Grading inputs/outputs for each question |
 | [`completions`](#completions) | Which user solved which question |
 | [`shop_items`](#shop_items) | Catalog of purchasable cosmetics |
-| [`inventory`](#inventory) | What each user has bought |
+| [`inventory`](#inventory) | What each user has bought, and how many |
+| [`key_unlocks`](#key_unlocks) | Which keys a user has unlocked |
 | [`key_decor`](#key_decor) | How each key on a user's keyboard is dressed |
 | [`key_presses`](#key_presses) | Per-user, per-key typing counts |
 
 ### The keyboard farm, in one paragraph
 
-Keebloom's shop decorates a **keyboard farm**. You buy a key unlock with coins
-(`users.keys_bought`), the key appears on your keyboard in the order
-`keyboard.py` sets, and you can then give it a look and something to grow.
-Skins and accessories are bought **once each** and applied to as many keys as
-you like - `inventory` says what you own, `key_decor` says where you put it.
+Keebloom's shop decorates a **keyboard farm**. Solving a problem or buying an
+`extra-key` earns an unlock **credit**; you spend one by clicking any locked
+key, and that key becomes yours (`key_unlocks`). Skins and accessories are
+bought **in quantities** - one copy dresses one key - so `inventory` says how
+many you own and `key_decor` says where they are. Taking an item off a key
+makes it placeable again, with no refund step anywhere: how many are placed is
+*counted* off `key_decor` rather than stored, so the two numbers can't drift.
 Fish and jellyfish only go on water keys; flowers and vegetables only on the
 rest. That last rule is the one thing here the database can't enforce itself -
 see [`decor.py`](./decor.py).
+
+### The three numbers that make an item work
+
+Only one of them is stored:
+
+```
+quantity   inventory.quantity            how many you bought      (a column)
+placed     count(*) over key_decor       how many are on a key    (derived)
+available  quantity - placed             how many you can plant   (a subtraction)
+```
+
+`queries.shop.units_available` is the one function that does this, and every
+placement route calls it. See [`inventory`](#inventory) for why `placed` isn't
+a column.
 
 ---
 
@@ -61,11 +78,15 @@ see [`decor.py`](./decor.py).
 thing that creates a row here.
 
 `keys_bought` deliberately stores only what was *purchased*, not how many keys
-are unlocked in total. [`keyboard.py`](./keyboard.py) adds `STARTING_KEYS` on
-top and caps at `len(KEY_UNLOCK_ORDER)`, so both of those numbers live in one
-place instead of being half-duplicated as a SQL `default 4`. It's the same
-split as `KEY_UNLOCK_ORDER` itself: the database stores the progress, Python
-owns the rules.
+are unlocked in total. [`keyboard.py`](./keyboard.py) adds `STARTING_KEYS` and
+the solve count on top and caps at `len(KEY_UNLOCK_ORDER)`, so those numbers
+live in one place instead of being half-duplicated as a SQL `default 4`. The
+database stores the progress, Python owns the rules.
+
+That total is an **allowance**, not a state: it says how many keys the user has
+earned the right to unlock. Which ones they actually picked is
+[`key_unlocks`](#key_unlocks), and the difference between the two is how many
+credits they have left to spend.
 
 `buy_key_unlock()` in [`queries/users.py`](./queries/users.py) is the only
 thing that increments it, and it puts both guards in the `WHERE` clause the way
@@ -127,9 +148,10 @@ the route whether it was the first time (drives whether coins get paid out).
 
 ## `shop_items`
 
-Catalog of purchasable cosmetics. Everything here is **buy-once**: owning an
-item unlocks the *type* forever and you place as many copies as you like, which
-is what keeps `inventory` free of quantities.
+Catalog of purchasable cosmetics. Skins and accessories are bought **in
+quantities** - one copy dresses one key, and buying the same thing again stacks
+rather than 409ing. `kind = 'key_unlock'` is the exception: it never reaches
+`inventory` at all, it increments `users.keys_bought` instead.
 
 | Column | Type | Constraints | Notes |
 |---|---|---|---|
@@ -160,25 +182,86 @@ is "fish on water keys, everything else on land keys", so it reduces to
    them and fail the test. This is why grass, the default key, isn't sold at
    all: a key with no skin renders grass already, so reverting is free without
    needing a price-0 row.
-2. **The cheapest item stays buy-once.** `cheapest_item` in `tests/api` and the
-   `item` fixture in `tests/db/test_queries.py` both grab the cheapest row and
-   then assert that buying it twice fails.
-3. **At least 4 items, catalog affordable on 1000 coins.**
+2. **At least 4 items, catalog affordable on 1000 coins.**
    `test_shop_lists_items` asserts `>= 4`; `test_coins_never_go_negative` buys
-   the lot. The current catalog is 12 items totalling 580.
+   the lot. The current catalog is 13 items totalling 193.
+
+Prices are **per placement** now, so they're roughly a quarter of what they
+were when one purchase decorated the whole keyboard. Because `seed.sql` upserts
+on `slug`, rebalancing is just re-running it - no `reset_db.py`, no wiped
+accounts, and nobody's existing quantities move.
 
 ## `inventory`
 
-What each user owns. Primary key stops buying the same item twice.
+How many of each item a user has bought. One row per `(user, item)` no matter
+how many copies.
 
 | Column | Type | Constraints | Notes |
 |---|---|---|---|
 | `user_id` | `uuid` | PK (1/2), -> `users(id)` on delete cascade | |
 | `item_id` | `uuid` | PK (2/2), -> `shop_items(id)` on delete cascade | |
+| `quantity` | `integer` | not null, default `1`, check `>= 0` | How many were **bought**. Not how many are free to place |
 | `bought_at` | `timestamptz` | not null, default `now()` | |
 
 That the primary key is exactly `(user_id, item_id)` **in that order** is load
-bearing - it's what lets `key_decor` point a composite foreign key at it.
+bearing - it's what lets `key_decor` point a composite foreign key at it. The
+quantity is a column rather than one row per copy for the same reason: the
+foreign key needs exactly one row to reference.
+
+**Why there's no `placed` column.** How many copies are currently on a key is
+already recorded - it's the number of `key_decor` rows pointing at the item -
+so storing it too would be two numbers that must agree, kept in sync by hand
+across four different write paths (place, replace, evict-on-skin-change,
+clear-key). Counting it instead means **nothing in this codebase refunds an
+item**: taking a flower off a key makes it available again by definition, and
+no missed code path can leak or duplicate a copy.
+
+`queries.shop.units_available` is the one place that does the subtraction. It
+opens with `select quantity ... for update`, which locks the user's inventory
+row for the rest of the request. Without that lock, two placements arriving
+together both read `placed = 0`, both see the last copy as free, and both
+write - the count subquery alone can't stop it, because they touch *different*
+`key_decor` rows and postgres has nothing to serialise on.
+
+**Never delete a row here when `quantity` hits 0.** `key_decor`'s composite
+foreign keys are `on delete cascade`, so dropping an inventory row wipes the
+whole `key_decor` row - including the *other* slot. `check (quantity >= 0)`
+rather than a delete is what keeps that from happening.
+
+## `key_unlocks`
+
+Which keys a user has unlocked. One row per key, written when they spend an
+unlock credit on it.
+
+| Column | Type | Constraints | Notes |
+|---|---|---|---|
+| `user_id` | `uuid` | PK (1/2), -> `users(id)` on delete cascade | |
+| `key_char` | `text` | PK (2/2), check `char_length = 1` | The key itself, eg `f`. Lowercase |
+| `unlocked_at` | `timestamptz` | not null, default `now()` | |
+
+Two halves of one rule, deliberately split:
+
+```
+allowance = STARTING_KEYS + solves + users.keys_bought   keyboard.unlock_allowance()
+spent     = count(*) from key_unlocks                    this table
+credits   = allowance - spent                            routers/users.py
+```
+
+`keyboard.py` owns the arithmetic and this table owns the choices, so neither
+can answer the other's question. `queries.keys.unlock_key` puts the guard in
+the `WHERE` clause the way `spend_coins` does - the insert produces a row only
+while `count(*) < allowance`, so two requests can't both spend the last credit.
+
+`queries.users.create_user` grants `keyboard.STARTING_KEY_CHARS` here on
+signup. That's in the query rather than the signup route on purpose: a user
+with no rows in this table can't decorate anything at all (see the foreign key
+below), so every path that makes a user has to make them a keyboard too.
+
+This table replaces a design decision that used to be in
+[Considered and dropped](#considered-and-dropped): "the unlock ORDER is fixed,
+so a single count says everything a table of rows would". That was true right
+up until the user got to pick which key, which is exactly what a count can't
+express.
 
 ## `key_decor`
 
@@ -193,7 +276,7 @@ a grass key with nothing on it, which is what `Keyboard.tsx` already draws.
 | `accessory_id` | `uuid` | nullable, composite FK (see below) | Null = nothing on this key |
 | `updated_at` | `timestamptz` | not null, default `now()` | |
 
-Three things here are doing more work than they look:
+Four things here are doing more work than they look:
 
 - **`primary key (user_id, key_char)` *is* the one-skin-one-accessory-per-key
   rule.** Placing a second flower on the same key updates the row instead of
@@ -203,10 +286,21 @@ Three things here are doing more work than they look:
   -> `inventory (user_id, item_id)` make "you can only place what you own" a
   database guarantee**, not route code that could be forgotten. Verified by
   `test_cannot_place_an_item_you_do_not_own`, which asserts a raw
-  `ForeignKeyViolation`.
+  `ForeignKeyViolation`. Note this is *ownership*, not stock - **how many**
+  copies you may place is `units_available`, because a foreign key can only
+  ask "does the row exist", not "are there any spare".
+- **`(user_id, key_char)` -> `key_unlocks` makes "you can't decorate a locked
+  key" the same kind of guarantee.** It works for the same reason the two
+  above do: `key_unlocks`' primary key is already exactly `(user_id, key_char)`
+  in that order. `routers/decor.py` still checks it first, so the user gets a
+  403 rather than the 500 a raw constraint violation would produce.
 - **The slots are nullable on purpose.** Postgres foreign keys default to
   `MATCH SIMPLE`, which skips the check entirely when any column of the key is
   null - so an empty slot is legal with no extra machinery.
+
+This table is also, incidentally, the stock ledger: every row referencing an
+item is one copy of it in use. That's what `units_available` counts, and why
+`clear_key` deleting a row *is* the refund.
 
 Both item slots live in one row rather than in two tables so that drawing a
 whole keyboard is a single `select`.
@@ -264,7 +358,9 @@ the length check is only a sanity guard.
 - `completions.question_id` -> `questions.id`
 - `inventory.user_id` -> `users.id`
 - `inventory.item_id` -> `shop_items.id`
+- `key_unlocks.user_id` -> `users.id`
 - `key_decor.user_id` -> `users.id`
+- `key_decor (user_id, key_char)` -> `key_unlocks (user_id, key_char)`
 - `key_decor (user_id, skin_id)` -> `inventory (user_id, item_id)`
 - `key_decor (user_id, accessory_id)` -> `inventory (user_id, item_id)`
 - `key_presses.user_id` -> `users.id`
@@ -275,74 +371,33 @@ the length check is only a sanity guard.
 - `test_cases (question_id)`
 - `completions (user_id)`
 
-`key_decor` and `key_presses` need none beyond their primary keys - both are
-only ever read `where user_id = %s`, which the PK already covers as a prefix.
+`key_decor`, `key_unlocks` and `key_presses` need none beyond their primary
+keys - all three are only ever read `where user_id = %s`, which the PK already
+covers as a prefix. `units_available`'s count over `key_decor` is the one query
+that filters on an item rather than a key, and it's still `where user_id = %s`
+first, so the same prefix serves it.
 
 ---
 
 ## Still to build
 
-The database now holds the whole keyboard farm. What's missing is the code that
-reads and writes it.
+The database and every route over it are done. What's listed here is what a
+future feature would touch, not missing work.
 
-### Routes and frontend (nothing exists yet)
+### Selling items back
 
-| Needs writing | Calls into |
-|---|---|
-| `routers/shop.py` - list / inventory / buy | `queries/shop.py` (done) |
-| A decor route - set skin, set accessory, clear key | `queries/decor.py` (done), `decor.py` (done) |
-| A key-unlock route | `queries.users.buy_key_unlock` (done), `keyboard.py` |
-| `routers/keylogger.py` - swap the in-memory dict for the table | `queries/keypresses.py` (done) |
-| `frontend`: slug -> asset map, the decor UI, real `listShop()` | - |
+Nothing deletes an `inventory` row today, and nothing should start without
+reading the caveat under [`key_decor`](#key_decor) first: the composite foreign
+keys are `on delete cascade`, so removing an inventory row takes the whole
+`key_decor` row with it, including the *other* slot. A sell route wants
+`on delete set null (skin_id)` (Postgres 15+, and `compose.yaml` pins 17) - or,
+more simply, to decrement `quantity` and refuse to go below `placed`.
 
-Two loose ends whoever picks these up will hit:
+### An escalating key price
 
-- **`keyboard.py` is still stubbed, and it's a teammate's task.** Its
-  `unlocked_key_count(n)` now means "n keys bought" rather than "n questions
-  solved" - a rename of the argument, not a rewrite, and all six tests in
-  `tests/unit/test_keyboard.py` still describe it correctly. It also needs a
-  price for the next key; a flat constant is fine to start, and an escalating
-  `price_for_next_key(keys_bought)` drops in later as a pure function with no
-  schema change.
-- **`Me` in `models.py` reports `unlocked_keys` (derived), while `users` stores
-  `keys_bought` (purchased).** `GET /users/me` is where the two meet.
-
-### Buying in quantity, if the farm ever sells plantables
-
-Everything today is buy-once, which is why `inventory` has no quantity column.
-If a shop selling things you plant in multiples ever lands, **add a quantity
-column to the existing `inventory` table rather than splitting it in two**:
-
-```sql
--- inventory gains one column
-quantity integer not null default 1 check (quantity >= 0)
-```
-
-The primary key stays `(user_id, item_id)`, so `list_inventory` and `owns_item`
-are untouched and - critically - `key_decor`'s composite foreign key keeps
-working. Only `add_to_inventory` changes:
-
-```sql
-on conflict (user_id, item_id) do update set quantity = inventory.quantity + 1
-```
-
-The alternative (separate `cosmetic_inventory` and `resource_inventory` tables)
-forces a UNION on every "what do I own" read, makes `owns_item` check both
-tables, and makes the buy path fetch the item type and branch before it can
-write - two near-identical tables and double the query surface for the same
-result.
-
-Knock-on effects to expect:
-
-- `ShopItem.owned: bool` stops being enough for stackables; that model and
-  `types.ts` need a quantity for them.
-- The "already owned -> 409" rule in `routers/shop.py` (and
-  `test_cannot_buy_twice`) applies to buy-once cosmetics only - the buy route
-  would branch by kind.
-- `kind`'s check constraint extends by one line. Worth deciding properly at
-  that point: `kind` currently means *what the item decorates*, whereas
-  stackable-vs-unique is a different axis. That may want a separate
-  `stackable` boolean rather than a third `kind`.
+`extra-key` is a flat 50. `price_for_next_key(keys_bought)` drops in later as a
+pure function in `keyboard.py` with no schema change - `users.keys_bought` is
+already the input it needs.
 
 ### Growth and plant income (idea only)
 
@@ -365,7 +420,9 @@ reinforces the core loop instead of rewarding idling.
 | Denormalising habitat into `key_decor` so a constraint *could* check it | Two copies of a value that already lives in `shop_items`, kept in sync by hand, to save one Python comparison. |
 | Selling grass as a price-0 item | A free item breaks `test_cannot_buy_what_you_cannot_afford`. A key with no skin already renders grass, so the default costs nothing to return to. |
 | `is_equipped` on inventory | Needs a partial unique index to stop two skins being equipped at once. `key_decor`'s primary key gets "one per key" for free. |
-| A `key_unlocks` table listing which keys a user owns | The unlock ORDER is fixed, so a single count says everything a table of rows would. `Me.unlocked_keys` and `keyState()` are both count-based already. |
+| ~~A `key_unlocks` table listing which keys a user owns~~ | **Reversed - it shipped.** The reason given was "the unlock ORDER is fixed, so a single count says everything a table of rows would". Letting the user choose which key removed that premise: a count can say *how many*, never *which*. See [`key_unlocks`](#key_unlocks). |
+| A `placed` counter on `inventory` | It's already recorded - one `key_decor` row per copy in use. Two numbers that must agree, maintained across four write paths, to save a `count(*)`. Counting it instead is what makes "taking an item off a key frees it" true with no refund code at all. |
+| A `quantity` on `key_decor` (several flowers on one key) | The primary key is `(user_id, key_char)` precisely so a key wears one skin and one accessory. Stacking belongs in `inventory`, not here. |
 | `shop_items.is_active` | Deleting the row from `seed.sql` does the same job. Revisit at launch. |
 | `shop_items.created_at` | Nothing sorts by it; `list_items` orders by `price, name`. |
 

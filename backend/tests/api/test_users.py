@@ -14,7 +14,10 @@ async def test_me_returns_the_basics(client, auth):
 
 async def test_new_user_starts_with_the_starting_keys(client, auth):
     body = (await client.get("/users/me", headers=auth)).json()
-    assert body["unlocked_keys"] == keyboard.STARTING_KEYS
+    # unlocked_keys is WHICH keys now, not how many - the user picks each one
+    assert body["unlocked_keys"] == sorted(keyboard.STARTING_KEY_CHARS)
+    # and nothing left over to place, since the starting keys are already spent
+    assert body["unlock_credits"] == 0
 
 
 async def test_me_never_leaks_the_password_hash(client, auth):
