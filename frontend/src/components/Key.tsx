@@ -15,18 +15,24 @@ interface KeyProps {
 
 export default function Key({ label, state, image, accessoryImage, isPressed=false, count=0, onClick}: KeyProps) {
   const isUnlocked = state === 'unlocked'
+  // a locked key is clickable too now, but only when the user has an unlock
+  // credit to spend on it - that click is how they choose where a new key goes
+  const isUnlockable = state === 'unlockable'
+  const clickable = (isUnlocked || isUnlockable) && onClick !== undefined
 
   return (
     <div
-      onClick={isUnlocked ? onClick : undefined}
-      className={`relative flex items-center justify-center w-12 h-12 select-none group ${isUnlocked && onClick ? 'cursor-pointer' : ''}`}>
+      onClick={clickable ? onClick : undefined}
+      title={isUnlockable ? `Unlock "${label.toUpperCase()}"` : undefined}
+      className={`relative flex items-center justify-center w-12 h-12 select-none group ${clickable ? 'cursor-pointer' : ''}`}>
       {image && (
         <img
           src={image}
           alt={label}
 
-          className={`w-full h-full object-contain transition-all duration-75 
+          className={`w-full h-full object-contain transition-all duration-75
             ${isPressed ? 'brightness-50 scale-95' : 'hover:brightness-75'}
+            ${isUnlockable ? 'opacity-70 animate-pulse hover:opacity-100' : ''}
           `}
         />
       )}
@@ -39,8 +45,11 @@ export default function Key({ label, state, image, accessoryImage, isPressed=fal
         />
       )}
 
-      <span className="absolute font-mono font-bold text-white text-lg drop-shadow-md pointer-events-none">
-        {isUnlocked ? label.toUpperCase() : ''}
+      {/* an unlockable key shows a + instead of its letter: it isn't yours
+          yet, but it's the thing to click */}
+      <span className={`absolute font-mono font-bold text-lg drop-shadow-md pointer-events-none
+        ${isUnlockable ? 'text-lime-200' : 'text-white'}`}>
+        {isUnlocked ? label.toUpperCase() : isUnlockable ? '+' : ''}
       </span>
 
       {count > 0 && (

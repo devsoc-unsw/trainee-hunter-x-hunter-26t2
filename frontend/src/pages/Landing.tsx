@@ -1,6 +1,9 @@
 import { useNavigate } from 'react-router-dom'
 import Keyboard from '../components/Keyboard'
 
+// just for the marketing shot - a full-looking keyboard, nobody's real one
+const DEMO_KEYS = 'qwertyuiopasdfghjkl;zxcvbnm'.split('')
+
 export default function Landing() {
     const navigate = useNavigate()
 // i totally did not copy this from the leetcode landing page :grin: :grin:
@@ -58,7 +61,7 @@ export default function Landing() {
             <section className="max-w-4xl mx-auto w-full my-8">
                 <div className="bg-white p-6 rounded-3xl border-2 border-slate-200 shadow-sm flex flex-col gap-4">
                 <div className="w-full bg-slate-50 p-4 rounded-2xl border-2 border-slate-200">
-                    <Keyboard unlockedCount={26} />
+                    <Keyboard unlockedKeys={DEMO_KEYS} />
                 </div>
                 </div>
             </section>

@@ -36,7 +36,7 @@ export default function Problem() {
 }
 
 function ProblemPage({ id }: { id: string }) {
-  const { refresh, me } = useAuth()
+  const { refresh, addCoins, me } = useAuth()
   const [question, setQuestion] = useState<QuestionDetail | null>(null)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [code, setCode] = useState('')
@@ -48,7 +48,7 @@ function ProblemPage({ id }: { id: string }) {
   const [activeKey, setActiveKey] = useState<string | null>(null)
   const [pressCounts, setPressCounts] = useState<Record<string, number>>({})
 
-  const unlockedCount = me?.unlocked_keys ?? 0
+  const unlockedKeys = me?.unlocked_keys ?? []
 
   const handleKeyLogged = (key: string) => {
     setActiveKey(key)
@@ -93,9 +93,10 @@ function ProblemPage({ id }: { id: string }) {
         const result = await submitCode(id, code)
         setOutcome({ kind, ...result })
         if (result.passed) {
-          // coins and unlocked_keys both live on /users/me, so one refresh
-          // updates the navbar's coin count AND grows the keyboard on the
-          // left of this very page
+          // coins and unlock_credits both live on /users/me, so one refresh
+          // updates the navbar's coin count AND the "you have a key to
+          // place" state. the keyboard on the left doesn't grow until the
+          // user spends that credit on a key of their choosing, in /profile
           await refresh()
           setQuestion((q) => (q ? { ...q, solved: true } : q))
         }
@@ -130,7 +131,7 @@ function ProblemPage({ id }: { id: string }) {
         {/* im gonna put the keyboard here */}
         <div className="w-full p-4">
             <Keyboard
-            unlockedCount={unlockedCount}
+            unlockedKeys={unlockedKeys}
             activeKey={activeKey}
             pressCounts={pressCounts}
           />
@@ -206,7 +207,7 @@ function ProblemPage({ id }: { id: string }) {
 
         </div>
 
-        <CodeEditor value={code} onChange={setCode} unlockedCount={unlockedCount} onKeyLogged={handleKeyLogged}/>
+        <CodeEditor value={code} onChange={setCode} unlockedKeys={unlockedKeys} onKeyLogged={handleKeyLogged} onCoinsEarned={addCoins}/>
 
         <div>
           {busy && (

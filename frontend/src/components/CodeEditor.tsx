@@ -7,14 +7,17 @@ import { python } from '@codemirror/lang-python'
 import { indentUnit } from '@codemirror/language'
 import { indentWithTab } from '@codemirror/commands'
 import { EditorView, keymap } from '@codemirror/view'
-import { keyState } from '../lib/keyboard'
 import { logKeyPress } from '../api/keylogger'
 
 interface CodeEditorProps {
   value: string
   onChange: (code: string) => void
-  unlockedCount: number
+  // which keys are unlocked - typing anything else earns nothing
+  unlockedKeys: string[]
   onKeyLogged: (key: string) => void
+  // how many coins the SERVER says that press just paid out. 0 most of the
+  // time, 1 on every tenth press of an unlocked key.
+  onCoinsEarned?: (coins: number) => void
 }
 
 // python is 4 spaces, and Tab should indent rather than tab out of the editor
@@ -41,7 +44,7 @@ const THEME = EditorView.theme({
   '&.cm-focused': { outline: 'none' },
 })
 
-export default function CodeEditor({ value, onChange, unlockedCount = 0, onKeyLogged }: CodeEditorProps) {
+export default function CodeEditor({ value, onChange, unlockedKeys = [], onKeyLogged, onCoinsEarned }: CodeEditorProps) {
   // unchanged from the textarea version. codemirror has no onKeyDown prop, so
   // the wrapper div below catches the event on the way out instead - which is
   // why the keylogger keeps paying coins for typing in here.
@@ -52,13 +55,19 @@ export default function CodeEditor({ value, onChange, unlockedCount = 0, onKeyLo
       return
     }
 
-    const state = keyState(key, unlockedCount)
+    if (unlockedKeys.includes(key)) {
+      // the response carries coins_earned - 1 on every tenth press. this used
+      // to be discarded, which is why the navbar's coin count sat still until
+      // something else happened to refetch /users/me. no extra request is
+      // needed to notice a payout: we already made one, and it answered.
+      logKeyPress(key)
+        .then((result) => onCoinsEarned?.(result.coins_earned))
+        .catch(() => {
+          // a dropped press just doesn't pay - the server is the record
+        })
 
-    if (state === 'unlocked') {
-      logKeyPress(key).catch(() => {
-        // do nothing
-      })
-
+      // fired straight away rather than off the response, so the press-count
+      // badge keeps up with fast typing
       if (onKeyLogged) {
         onKeyLogged(key)
       }

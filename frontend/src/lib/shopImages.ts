@@ -1,6 +1,7 @@
 // js importing images :3
 import soilKey from '../assets/keys/dirt_key.png'
 import waterKey from '../assets/keys/water_key.png'
+import grassKey from '../assets/keys/grass_key.png'
 
 import pinkDaffodil from '../assets/shop_items/flower_1.png'
 import blueDaffodil from '../assets/shop_items/flower_2.png'
@@ -14,6 +15,10 @@ import fish from '../assets/shop_items/fish_1.png'
 import jellyfish from '../assets/shop_items/fish_2.png'
 
 export const SHOP_ITEM_IMAGES: Record<string, string> = {
+    // not a skin - buying it earns an unlock credit you spend by clicking a
+    // locked key. it's in the shop grid, so it still needs a picture.
+    'extra-key': grassKey,
+
     'soil-key': soilKey,
     'water-key': waterKey,
 

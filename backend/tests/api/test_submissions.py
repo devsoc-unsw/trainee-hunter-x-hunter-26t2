@@ -87,13 +87,22 @@ async def test_failing_pays_nothing(client, auth, question_id):
 
 
 async def test_solving_grows_the_keyboard(client, auth, question_id):
-    before = (await client.get("/users/me", headers=auth)).json()["unlocked_keys"]
+    # solving earns an unlock CREDIT rather than lighting up the next key in a
+    # fixed order - the user spends it on whichever key they want, via
+    # POST /keyboard/{key}/unlock. So the keyboard doesn't grow until they do.
+    before = (await client.get("/users/me", headers=auth)).json()
     await client.post(
         f"/questions/{question_id}/submit", json={"code": GOOD}, headers=auth
     )
     after = (await client.get("/users/me", headers=auth)).json()
     assert after["solved_count"] == 1
-    assert after["unlocked_keys"] > before
+    assert after["unlock_credits"] == before["unlock_credits"] + 1
+    assert after["unlocked_keys"] == before["unlocked_keys"]
+
+    unlocked = await client.post("/keyboard/z/unlock", headers=auth)
+    assert unlocked.status_code == 200
+    assert "z" in unlocked.json()["unlocked_keys"]
+    assert unlocked.json()["unlock_credits"] == 0
 
 
 async def test_solved_shows_up_in_the_question_list(client, auth, question_id):

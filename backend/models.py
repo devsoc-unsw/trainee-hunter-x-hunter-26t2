@@ -50,7 +50,12 @@ class Me(BaseModel):
     username: str
     coins: int
     solved_count: int
-    unlocked_keys: int
+    # WHICH keys are unlocked, not how many. the user picks each one, so a
+    # count can't say it any more - see keyboard.py.
+    unlocked_keys: list[str]
+    # unlocks earned but not yet placed on a key. solving and buying both
+    # add to this; clicking a locked key spends one.
+    unlock_credits: int
 
 
 class UpdateMeRequest(BaseModel):
@@ -151,12 +156,21 @@ class ShopItem(BaseModel):
     # 'land' or 'water'. an accessory only goes on a key of the same habitat,
     # which is what keeps the fish off the flowerbeds - see decor.py.
     habitat: str
+    # owns at least one. kept as a plain bool because it's still the useful
+    # question for a key_unlock item, which has no quantity to speak of.
     owned: bool
+    # how many they bought, and how many of those are currently on a key.
+    # quantity - placed is what's left to plant.
+    quantity: int = 0
+    placed: int = 0
 
 
 class BuyResponse(BaseModel):
     item_id: UUID
     coins_left: int
+    # how many of this item the user now owns. 0 for a key unlock, which goes
+    # to users.keys_bought rather than into the inventory.
+    quantity: int = 0
 
 # ---------- keyboard decor ----------
 
@@ -165,6 +179,14 @@ class KeyDecor(BaseModel):
     key_char: str
     skin_slug: str | None
     accessory_slug: str | None
+
+
+class UnlockResponse(BaseModel):
+    """What spending an unlock credit on a key gives back."""
+
+    key_char: str
+    unlocked_keys: list[str]
+    unlock_credits: int
 
 
 class SetSkinRequest(BaseModel):

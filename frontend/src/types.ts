@@ -9,7 +9,11 @@ export interface Me {
   username: string
   coins: number
   solved_count: number
-  unlocked_keys: number
+  // WHICH keys are unlocked, not how many - the user picks each one
+  unlocked_keys: string[]
+  // unlocks earned but not yet placed. solving and buying both add to this;
+  // clicking a locked key spends one
+  unlock_credits: number
 }
 
 export interface TestCase {
@@ -73,11 +77,16 @@ export interface ShopItem {
   name: string
   price: number
   image_url: string
-  kind: 'key_skin' | 'accessory'
+  kind: 'key_skin' | 'accessory' | 'key_unlock'
   // an accessory only goes on a key of the same habitat: fish on water keys,
   // flowers and veg on the rest
   habitat: 'land' | 'water'
+  // owns at least one
   owned: boolean
+  // how many were bought, and how many of those are already on a key.
+  // quantity - placed is what's left to plant.
+  quantity: number
+  placed: number
 }
 
 // how one key is dressed. keys the user hasn't touched aren't in the list -
@@ -91,4 +100,18 @@ export interface KeyDecor {
 export interface BuyResponse {
   item_id: string
   coins_left: number
+  // how many of it the user now owns. 0 for a key unlock, which becomes an
+  // unlock credit rather than an inventory item.
+  quantity: number
+}
+
+export interface UnlockResponse {
+  key_char: string
+  unlocked_keys: string[]
+  unlock_credits: number
+}
+
+// how many copies of an item are still free to put on a key
+export function unplaced(item: ShopItem): number {
+  return item.quantity - item.placed
 }

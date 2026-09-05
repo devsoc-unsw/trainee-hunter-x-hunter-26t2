@@ -14,8 +14,10 @@ from uuid import UUID
 import psycopg
 import pytest
 
+import keyboard
 import queries.decor
 import queries.keypresses
+import queries.keys
 import queries.progress
 import queries.questions
 import queries.sessions
@@ -231,10 +233,17 @@ async def test_buying_flips_ownership(conn, user, item):
     assert await queries.shop.owns_item(conn, user.id, item["id"]) is True
 
 
-async def test_cannot_own_the_same_item_twice(conn, user, item):
-    # the route turns the False into a 409
-    assert await queries.shop.add_to_inventory(conn, user.id, item["id"]) is True
-    assert await queries.shop.add_to_inventory(conn, user.id, item["id"]) is False
+async def test_buying_again_adds_a_unit(conn, user, item):
+    # items stack now. one copy dresses one key, so the second purchase is a
+    # second flower rather than a 409
+    assert await queries.shop.add_to_inventory(conn, user.id, item["id"]) == 1
+    assert await queries.shop.add_to_inventory(conn, user.id, item["id"]) == 2
+
+    # and it stays ONE inventory row - key_decor's composite foreign key needs
+    # exactly one row per (user, item) to point at
+    owned = await queries.shop.list_inventory(conn, user.id)
+    assert len(owned) == 1
+    assert owned[0]["quantity"] == 2
 
 
 async def test_inventory_joins_through_to_the_item(conn, user, item):
@@ -396,3 +405,106 @@ async def test_cannot_buy_past_the_end_of_the_keyboard(conn, user):
     after = await queries.users.get_user_by_id(conn, user.id)
     assert after is not None
     assert (after.coins, after.keys_bought) == (998, 2)
+
+
+# ---------- key unlocks ----------
+
+
+async def test_new_account_starts_on_the_home_row(conn, user):
+    # create_user grants these, so every user has a keyboard to decorate -
+    # key_decor's foreign key into key_unlocks needs them to exist
+    assert await queries.keys.list_unlocked(conn, user.id) == sorted(
+        keyboard.STARTING_KEY_CHARS
+    )
+    assert await queries.keys.count_unlocked(conn, user.id) == keyboard.STARTING_KEYS
+
+
+async def test_grant_keys_is_repeatable(conn, user):
+    await queries.keys.grant_keys(conn, user.id, ["z", "z", "x"])
+    await queries.keys.grant_keys(conn, user.id, ["z"])
+    unlocked = await queries.keys.list_unlocked(conn, user.id)
+    assert unlocked.count("z") == 1
+    assert "x" in unlocked
+
+
+async def test_unlocking_spends_a_credit(conn, user):
+    # allowance of one more than they already have = exactly one credit
+    allowance = keyboard.STARTING_KEYS + 1
+    assert await queries.keys.unlock_key(conn, user.id, "z", allowance) is True
+    assert await queries.keys.is_unlocked(conn, user.id, "z") is True
+
+    # and that was the only one - the guard is in the insert's WHERE clause,
+    # so the second attempt writes nothing rather than racing
+    assert await queries.keys.unlock_key(conn, user.id, "x", allowance) is False
+    assert await queries.keys.is_unlocked(conn, user.id, "x") is False
+
+
+async def test_unlocking_a_key_you_already_have_changes_nothing(conn, user):
+    before = await queries.keys.count_unlocked(conn, user.id)
+    starting_key = keyboard.STARTING_KEY_CHARS[0]
+    assert await queries.keys.unlock_key(conn, user.id, starting_key, 99) is False
+    assert await queries.keys.count_unlocked(conn, user.id) == before
+
+
+async def test_unlocks_are_per_user(conn, user):
+    other = await queries.users.create_user(conn, "someoneelse", "fakehash")
+    await queries.keys.unlock_key(conn, user.id, "z", 99)
+    assert "z" not in await queries.keys.list_unlocked(conn, other.id)
+
+
+# ---------- how many of an item are free to place ----------
+
+
+async def test_nothing_available_when_you_own_nothing(conn, user, item):
+    assert await queries.shop.units_available(conn, user.id, item["id"]) == 0
+
+
+async def test_placing_uses_one_up(conn, user, owned):
+    tulip = owned["blue-tulip"]["id"]
+    await queries.shop.add_to_inventory(conn, user.id, tulip)  # 2 in total now
+
+    assert await queries.shop.units_available(conn, user.id, tulip) == 2
+    await queries.decor.set_accessory(conn, user.id, "f", tulip)
+    assert await queries.shop.units_available(conn, user.id, tulip) == 1
+    await queries.decor.set_accessory(conn, user.id, "j", tulip)
+    assert await queries.shop.units_available(conn, user.id, tulip) == 0
+
+
+async def test_taking_an_item_off_a_key_frees_it(conn, user, owned):
+    tulip = owned["blue-tulip"]["id"]
+    await queries.decor.set_accessory(conn, user.id, "f", tulip)
+    assert await queries.shop.units_available(conn, user.id, tulip) == 0
+
+    # no refund code runs anywhere - 'placed' is counted off key_decor, so
+    # clearing the key IS the refund
+    await queries.decor.clear_key(conn, user.id, "f")
+    assert await queries.shop.units_available(conn, user.id, tulip) == 1
+
+
+async def test_a_key_does_not_compete_with_itself(conn, user, owned):
+    """Re-placing the item a key already wears must still be allowed."""
+    tulip = owned["blue-tulip"]["id"]
+    await queries.decor.set_accessory(conn, user.id, "f", tulip)
+
+    assert await queries.shop.units_available(conn, user.id, tulip) == 0
+    assert (
+        await queries.shop.units_available(conn, user.id, tulip, ignoring_key="f") == 1
+    )
+
+
+async def test_evicting_an_accessory_frees_it(conn, user, owned):
+    """Changing a water key to soil drops the fish - which becomes placeable."""
+    await queries.decor.set_skin(
+        conn, user.id, "f", owned["water-key"]["id"], keep_accessory=False
+    )
+    await queries.decor.set_accessory(conn, user.id, "f", owned["fish"]["id"])
+    assert await queries.shop.units_available(conn, user.id, owned["fish"]["id"]) == 0
+
+    await queries.decor.set_skin(
+        conn, user.id, "f", owned["soil-key"]["id"], keep_accessory=False
+    )
+    assert await queries.shop.units_available(conn, user.id, owned["fish"]["id"]) == 1
+    # and the water key it stopped wearing is free again too
+    assert (
+        await queries.shop.units_available(conn, user.id, owned["water-key"]["id"]) == 1
+    )
