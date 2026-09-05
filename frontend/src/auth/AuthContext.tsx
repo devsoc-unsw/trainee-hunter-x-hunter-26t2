@@ -3,7 +3,8 @@
 
 import { createContext, useContext, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
-import { getToken, setToken } from '../api/client'
+import { setToken } from '../api/client'
+import * as authApi from '../api/auth'
 import type { Me } from '../types'
 
 interface AuthState {
@@ -19,17 +20,6 @@ interface AuthState {
 
 const AuthContext = createContext<AuthState | null>(null)
 
-// =============================================================================
-// !!! HARDCODED DUMMY DATA !!! fake auth so the frontend works without the
-// backend. any username/password logs in. swap every function body marked
-// "DUMMY" below for the real api/auth + api/user calls when the backend exists.
-// =============================================================================
-const FAKE_USERNAME_KEY = 'fake_username'
-
-function fakeMe(username: string): Me {
-  return { id: 'u-1', username, coins: 135, solved_count: 3, unlocked_keys: 7 }
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [me, setMe] = useState<Me | null>(null)
   const [loading, setLoading] = useState(true)
@@ -38,39 +28,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // with it. if that fails the token is stale, throw it away
   useEffect(() => {
     async function restore() {
-      //! DUMMY: real version should getMe() and setToken(null) on failure
-      if (getToken()) {
-        setMe(fakeMe(localStorage.getItem(FAKE_USERNAME_KEY) ?? 'usernameee :3'))
-      }
+      // GET /users/me isn't implemented yet (blocked on routers/users.py +
+      // keyboard.py). Once it lands, this should call getMe(), setMe(...),
+      // and setToken(null) on failure, per the original TODO.
       setLoading(false)
     }
     restore()
   }, [])
 
-  //! DUMMY: always succeeds. real version calls api/auth login then getMe()
-  async function login(username: string, _password: string) {
-    setToken('fake-token')
-    localStorage.setItem(FAKE_USERNAME_KEY, username)
-    setMe(fakeMe(username))
+  async function login(username: string, password: string) {
+    const { token } = await authApi.login(username, password)
+    setToken(token)
   }
 
-  //! DUMMY: same as login. real version hits signup
   async function signup(username: string, password: string) {
-    await login(username, password)
+    const { token } = await authApi.signup(username, password)
+    setToken(token)
   }
 
   async function logout() {
-    //! DUMMY: real version tells the backend first
-    setToken(null)
-    localStorage.removeItem(FAKE_USERNAME_KEY)
-    setMe(null)
+    try {
+      await authApi.logout()
+    } catch {
+      // ignore - we're clearing local state regardless
+    } finally {
+      setToken(null)
+      setMe(null)
+    }
   }
 
   async function refresh() {
-    //! DUMMY: real version re-fetches /users/me
-    if (getToken()) {
-      setMe(fakeMe(localStorage.getItem(FAKE_USERNAME_KEY) ?? 'usernameee :3'))
-    }
+    // re-fetch /users/me and setMe - blocked on GET /users/me, out of scope here
+    throw new Error('not implemented')
   }
 
   return (
