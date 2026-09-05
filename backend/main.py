@@ -10,7 +10,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from db import database_url
-from routers import auth, questions, shop, submissions, users, keylogger
+from routers import auth, questions, shop, submissions, users, keylogger, decor
 
 app = FastAPI(title="Trainee Hunter API")
 
@@ -30,6 +30,7 @@ app.include_router(questions.router)
 app.include_router(submissions.router)
 app.include_router(shop.router)
 app.include_router(keylogger.router)
+app.include_router(decor.router)
 
 
 @app.get("/")

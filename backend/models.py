@@ -137,3 +137,21 @@ class ShopItem(BaseModel):
 class BuyResponse(BaseModel):
     item_id: UUID
     coins_left: int
+
+# ---------- keyboard decor ----------
+
+
+class KeyDecor(BaseModel):
+    key_char: str
+    skin_slug: str | None
+    accessory_slug: str | None
+
+
+class SetSkinRequest(BaseModel):
+    # None puts the key back to default grass
+    skin_slug: str | None = None
+    keep_accessory: bool = False
+
+
+class SetAccessoryRequest(BaseModel):
+    accessory_slug: str | None = None

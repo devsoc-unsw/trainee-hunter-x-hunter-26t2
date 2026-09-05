@@ -7,23 +7,35 @@ interface KeyProps {
   // and pass the right one in here
   // did in keyboard! :3
   image?: string
+  accessoryImage?: string
   isPressed?: boolean
   count?: number
+  onClick?: () => void
 }
 
-export default function Key({ label, state, image, isPressed=false, count=0}: KeyProps) {
+export default function Key({ label, state, image, accessoryImage, isPressed=false, count=0, onClick}: KeyProps) {
   const isUnlocked = state === 'unlocked'
 
   return (
-    <div className="relative flex items-center justify-center w-12 h-12 select-none group">
+    <div
+      onClick={isUnlocked ? onClick : undefined}
+      className={`relative flex items-center justify-center w-12 h-12 select-none group ${isUnlocked && onClick ? 'cursor-pointer' : ''}`}>
       {image && (
         <img
           src={image}
           alt={label}
 
-          className={`w-full h-full object-contain cursor-pointer transition-all duration-75 
+          className={`w-full h-full object-contain transition-all duration-75 
             ${isPressed ? 'brightness-50 scale-95' : 'hover:brightness-75'}
           `}
+        />
+      )}
+
+      {accessoryImage && (
+        <img
+          src={accessoryImage}
+          alt=""
+          className="absolute w-6 h-6 object-contain pointer-events-none"
         />
       )}
 

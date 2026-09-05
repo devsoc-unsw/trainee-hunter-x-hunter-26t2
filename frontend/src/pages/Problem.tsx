@@ -48,7 +48,7 @@ function fallbackDetail(id: string): QuestionDetail {
 export default function Problem() {
   // the question id from the url, /problems/:id
   const { id } = useParams()
-  const { refresh } = useAuth()
+  const { refresh, me } = useAuth()
   const [code, setCode] = useState('')
   const [result, setResult] = useState<SubmitResponse | null>(null)
   const [submitting, setSubmitting] = useState(false)
@@ -56,7 +56,7 @@ export default function Problem() {
   const [activeKey, setActiveKey] = useState<string | null>(null)
   const [pressCounts, setPressCounts] = useState<Record<string, number>>({})
 
-  const unlockedCount = 17
+  const unlockedCount = me?.unlocked_keys ?? 0
 
   const handleKeyLogged = (key: string) => {
     setActiveKey(key)

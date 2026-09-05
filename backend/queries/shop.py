@@ -60,3 +60,10 @@ async def add_to_inventory(
         )
     ).fetchone()
     return row is not None
+
+async def get_item_by_slug(
+    conn: psycopg.AsyncConnection[DictRow], slug: str
+) -> dict | None:
+    return await (
+        await conn.execute("select * from shop_items where slug = %s", (slug,))
+    ).fetchone()

@@ -6,6 +6,7 @@ import { logout } from '../api/auth'
 import { useEffect, useState } from 'react'
 import { listInventory } from '../api/shop'
 import type { ShopItem } from '../types'
+import { SHOP_ITEM_IMAGES } from '../lib/shopImages'
 
 export default function Profile() {
   const { me, refresh } = useAuth()
@@ -66,7 +67,7 @@ export default function Profile() {
           </div>
 
           <div className="w-full bg-slate-50 p-4 rounded-xl border-2 border-slate-200">
-            <Keyboard unlockedCount={17}/>
+            <Keyboard unlockedCount={me?.unlocked_keys ?? 0} editable/>
           </div>
         </div>
 
@@ -80,6 +81,7 @@ export default function Profile() {
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {inventory.map((item) => (
               <div key={item.id} className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-1.5 text-center">
+                <img src={SHOP_ITEM_IMAGES[item.slug]} alt={item.name} className="w-12 h-12 object-contain" />
                 <span className="text-xs font-bold text-slate-700">{item.name}</span>
               </div>
             ))}

@@ -29,7 +29,7 @@ export default function Home() {
         <div className="basis-1/3">
             <p className="text-2xl font-black text-slate-900">Your keyboard</p>
             <div className="w-full p-4">
-                <Keyboard unlockedCount={17}/>
+                <Keyboard unlockedCount={me?.unlocked_keys ?? 0}/>
             </div>
         </div>
     </div>
