@@ -17,3 +17,255 @@ reverse-string,"[""Hello, World!""]","""!dlroW ,olleH""",false
 reverse-string,"[""12345""]","""54321""",false
 reverse-string,"[""keebloom""]","""moolbeek""",false
 reverse-string,"[""ab cd""]","""dc ba""",false
+sum-of-evens,"[[1, 2, 3, 4]]",6,true
+sum-of-evens,"[[5, 7, 9]]",0,true
+sum-of-evens,[[]],0,false
+sum-of-evens,"[[2, 4, 6, 8, 10]]",30,false
+sum-of-evens,"[[0, 1, 2]]",2,false
+sum-of-evens,"[[-2, -3, -4]]",-6,false
+sum-of-evens,[[100]],100,false
+sum-of-evens,[[7]],0,false
+sum-of-evens,"[[-1, 0, 1, 2, -8]]",-6,false
+count-vowels,"[""hello""]",2,true
+count-vowels,"[""Programming""]",3,true
+count-vowels,"[""""]",0,false
+count-vowels,"[""xyz""]",0,false
+count-vowels,"[""AEIOU""]",5,false
+count-vowels,"[""keebloom""]",4,false
+count-vowels,"[""The quick brown fox""]",5,false
+count-vowels,"[""rhythm""]",0,false
+count-vowels,"[""aAeEiIoOuU""]",10,false
+fizz-buzz,[5],"[""1"", ""2"", ""Fizz"", ""4"", ""Buzz""]",true
+fizz-buzz,[15],"[""1"", ""2"", ""Fizz"", ""4"", ""Buzz"", ""Fizz"", ""7"", ""8"", ""Fizz"", ""Buzz"", ""11"", ""Fizz"", ""13"", ""14"", ""FizzBuzz""]",true
+fizz-buzz,[0],[],false
+fizz-buzz,[1],"[""1""]",false
+fizz-buzz,[3],"[""1"", ""2"", ""Fizz""]",false
+fizz-buzz,[9],"[""1"", ""2"", ""Fizz"", ""4"", ""Buzz"", ""Fizz"", ""7"", ""8"", ""Fizz""]",false
+fizz-buzz,[16],"[""1"", ""2"", ""Fizz"", ""4"", ""Buzz"", ""Fizz"", ""7"", ""8"", ""Fizz"", ""Buzz"", ""11"", ""Fizz"", ""13"", ""14"", ""FizzBuzz"", ""16""]",false
+fizz-buzz,[20],"[""1"", ""2"", ""Fizz"", ""4"", ""Buzz"", ""Fizz"", ""7"", ""8"", ""Fizz"", ""Buzz"", ""11"", ""Fizz"", ""13"", ""14"", ""FizzBuzz"", ""16"", ""17"", ""Fizz"", ""19"", ""Buzz""]",false
+fizz-buzz,[30],"[""1"", ""2"", ""Fizz"", ""4"", ""Buzz"", ""Fizz"", ""7"", ""8"", ""Fizz"", ""Buzz"", ""11"", ""Fizz"", ""13"", ""14"", ""FizzBuzz"", ""16"", ""17"", ""Fizz"", ""19"", ""Buzz"", ""Fizz"", ""22"", ""23"", ""Fizz"", ""Buzz"", ""26"", ""Fizz"", ""28"", ""29"", ""FizzBuzz""]",false
+palindrome-check,"[""racecar""]",true,true
+palindrome-check,"[""A man, a plan, a canal: Panama""]",true,true
+palindrome-check,"[""""]",true,false
+palindrome-check,"[""a""]",true,false
+palindrome-check,"[""ab""]",false,false
+palindrome-check,"[""No 'x' in Nixon""]",true,false
+palindrome-check,"[""hello world""]",false,false
+palindrome-check,"[""12321""]",true,false
+palindrome-check,"[""Was it a car or a cat I saw?""]",true,false
+fibonacci-number,[6],8,true
+fibonacci-number,[0],0,true
+fibonacci-number,[1],1,false
+fibonacci-number,[2],1,false
+fibonacci-number,[10],55,false
+fibonacci-number,[20],6765,false
+fibonacci-number,[30],832040,false
+fibonacci-number,[50],12586269025,false
+fibonacci-number,[80],23416728348467685,false
+remove-duplicates,"[[1, 2, 2, 3, 1]]","[1, 2, 3]",true
+remove-duplicates,"[[4, 4, 4]]",[4],true
+remove-duplicates,[[]],[],false
+remove-duplicates,"[[1, 2, 3]]","[1, 2, 3]",false
+remove-duplicates,"[[9, 1, 9, 2, 1, 3]]","[9, 1, 2, 3]",false
+remove-duplicates,"[[-1, -1, 0, 0, 1]]","[-1, 0, 1]",false
+remove-duplicates,[[5]],[5],false
+remove-duplicates,"[[7, 6, 5, 6, 7]]","[7, 6, 5]",false
+remove-duplicates,"[[0, 0, 0, 0, 0, 1]]","[0, 1]",false
+merge-sorted-lists,"[[1, 3, 5], [2, 4, 6]]","[1, 2, 3, 4, 5, 6]",true
+merge-sorted-lists,"[[1, 2], [3, 4]]","[1, 2, 3, 4]",true
+merge-sorted-lists,"[[], []]",[],false
+merge-sorted-lists,"[[], [1, 2, 3]]","[1, 2, 3]",false
+merge-sorted-lists,"[[1, 2, 3], []]","[1, 2, 3]",false
+merge-sorted-lists,"[[1, 1, 1], [1, 1]]","[1, 1, 1, 1, 1]",false
+merge-sorted-lists,"[[-5, 0, 5], [-3, 3]]","[-5, -3, 0, 3, 5]",false
+merge-sorted-lists,"[[10], [1, 2, 3, 4]]","[1, 2, 3, 4, 10]",false
+merge-sorted-lists,"[[2, 2, 4], [1, 2, 3]]","[1, 2, 2, 2, 3, 4]",false
+character-frequency,"[""hello""]","{""h"": 1, ""e"": 1, ""l"": 2, ""o"": 1}",true
+character-frequency,"[""aab""]","{""a"": 2, ""b"": 1}",true
+character-frequency,"[""""]",{},false
+character-frequency,"[""a""]","{""a"": 1}",false
+character-frequency,"[""abc""]","{""a"": 1, ""b"": 1, ""c"": 1}",false
+character-frequency,"[""aaaa""]","{""a"": 4}",false
+character-frequency,"[""Aa""]","{""A"": 1, ""a"": 1}",false
+character-frequency,"[""keebloom""]","{""k"": 1, ""e"": 2, ""b"": 1, ""l"": 1, ""o"": 2, ""m"": 1}",false
+character-frequency,"[""a b a""]","{""a"": 2, "" "": 2, ""b"": 1}",false
+is-anagram,"[""listen"", ""silent""]",true,true
+is-anagram,"[""hello"", ""world""]",false,true
+is-anagram,"["""", """"]",true,false
+is-anagram,"[""a"", ""a""]",true,false
+is-anagram,"[""a"", ""b""]",false,false
+is-anagram,"[""ab"", ""abc""]",false,false
+is-anagram,"[""aabb"", ""bbaa""]",true,false
+is-anagram,"[""Listen"", ""silent""]",false,false
+is-anagram,"[""night"", ""thing""]",true,false
+sum-of-digits,[1234],10,true
+sum-of-digits,[0],0,true
+sum-of-digits,[9],9,false
+sum-of-digits,[10],1,false
+sum-of-digits,[99],18,false
+sum-of-digits,[100],1,false
+sum-of-digits,[54321],15,false
+sum-of-digits,[1000000],1,false
+sum-of-digits,[987654321],45,false
+longest-unique-substring,"[""abcabcbb""]",3,true
+longest-unique-substring,"[""bbbbb""]",1,true
+longest-unique-substring,"[""""]",0,false
+longest-unique-substring,"[""pwwkew""]",3,false
+longest-unique-substring,"[""a""]",1,false
+longest-unique-substring,"[""au""]",2,false
+longest-unique-substring,"[""dvdf""]",3,false
+longest-unique-substring,"[""abcdefg""]",7,false
+longest-unique-substring,"[""tmmzuxt""]",5,false
+valid-parentheses,"[""()[]{}""]",true,true
+valid-parentheses,"[""([)]""]",false,true
+valid-parentheses,"[""""]",true,false
+valid-parentheses,"[""(""]",false,false
+valid-parentheses,"["")""]",false,false
+valid-parentheses,"[""([])""]",true,false
+valid-parentheses,"[""{[()]}""]",true,false
+valid-parentheses,"[""(((""]",false,false
+valid-parentheses,"[""(){}}{""]",false,false
+maximum-subarray,"[[-2, 1, -3, 4, -1, 2, 1, -5, 4]]",6,true
+maximum-subarray,[[1]],1,true
+maximum-subarray,[[-1]],-1,false
+maximum-subarray,"[[5, 4, -1, 7, 8]]",23,false
+maximum-subarray,"[[-2, -1, -3]]",-1,false
+maximum-subarray,"[[1, 2, 3, 4]]",10,false
+maximum-subarray,"[[-1, -2, 5]]",5,false
+maximum-subarray,"[[0, 0, 0]]",0,false
+maximum-subarray,"[[8, -19, 5, -4, 20]]",21,false
+product-except-self,"[[1, 2, 3, 4]]","[24, 12, 8, 6]",true
+product-except-self,"[[-1, 1, 0, -3, 3]]","[0, 0, 9, 0, 0]",true
+product-except-self,"[[2, 3]]","[3, 2]",false
+product-except-self,"[[1, 1, 1, 1]]","[1, 1, 1, 1]",false
+product-except-self,"[[0, 0]]","[0, 0]",false
+product-except-self,"[[5, 0, 2]]","[0, 10, 0]",false
+product-except-self,"[[-1, -2, -3]]","[6, 3, 2]",false
+product-except-self,"[[10, 3, 5, 6, 2]]","[180, 600, 360, 300, 900]",false
+product-except-self,"[[1, 0]]","[0, 1]",false
+spiral-matrix,"[[[1, 2, 3], [4, 5, 6], [7, 8, 9]]]","[1, 2, 3, 6, 9, 8, 7, 4, 5]",true
+spiral-matrix,"[[[1, 2], [3, 4]]]","[1, 2, 4, 3]",true
+spiral-matrix,[[]],[],false
+spiral-matrix,[[[1]]],[1],false
+spiral-matrix,"[[[1, 2, 3, 4]]]","[1, 2, 3, 4]",false
+spiral-matrix,"[[[1], [2], [3]]]","[1, 2, 3]",false
+spiral-matrix,"[[[1, 2, 3], [4, 5, 6]]]","[1, 2, 3, 6, 5, 4]",false
+spiral-matrix,"[[[1, 2], [3, 4], [5, 6]]]","[1, 2, 4, 6, 5, 3]",false
+spiral-matrix,"[[[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]]","[1, 2, 3, 4, 8, 12, 11, 10, 9, 5, 6, 7]",false
+roman-to-integer,"[""III""]",3,true
+roman-to-integer,"[""MCMXCIV""]",1994,true
+roman-to-integer,"[""I""]",1,false
+roman-to-integer,"[""IV""]",4,false
+roman-to-integer,"[""IX""]",9,false
+roman-to-integer,"[""LVIII""]",58,false
+roman-to-integer,"[""XL""]",40,false
+roman-to-integer,"[""MMXXVI""]",2026,false
+roman-to-integer,"[""MMMCMXCIX""]",3999,false
+run-length-encoding,"[""aaabbc""]","""a3b2c1""",true
+run-length-encoding,"[""abc""]","""a1b1c1""",true
+run-length-encoding,"[""""]","""""",false
+run-length-encoding,"[""a""]","""a1""",false
+run-length-encoding,"[""aa""]","""a2""",false
+run-length-encoding,"[""aabbaa""]","""a2b2a2""",false
+run-length-encoding,"[""wwwwwwwwwwww""]","""w12""",false
+run-length-encoding,"[""keebloom""]","""k1e2b1l1o2m1""",false
+run-length-encoding,"[""aAaA""]","""a1A1a1A1""",false
+pascals-triangle,[5],"[[1], [1, 1], [1, 2, 1], [1, 3, 3, 1], [1, 4, 6, 4, 1]]",true
+pascals-triangle,[1],[[1]],true
+pascals-triangle,[0],[],false
+pascals-triangle,[2],"[[1], [1, 1]]",false
+pascals-triangle,[3],"[[1], [1, 1], [1, 2, 1]]",false
+pascals-triangle,[6],"[[1], [1, 1], [1, 2, 1], [1, 3, 3, 1], [1, 4, 6, 4, 1], [1, 5, 10, 10, 5, 1]]",false
+pascals-triangle,[8],"[[1], [1, 1], [1, 2, 1], [1, 3, 3, 1], [1, 4, 6, 4, 1], [1, 5, 10, 10, 5, 1], [1, 6, 15, 20, 15, 6, 1], [1, 7, 21, 35, 35, 21, 7, 1]]",false
+pascals-triangle,[10],"[[1], [1, 1], [1, 2, 1], [1, 3, 3, 1], [1, 4, 6, 4, 1], [1, 5, 10, 10, 5, 1], [1, 6, 15, 20, 15, 6, 1], [1, 7, 21, 35, 35, 21, 7, 1], [1, 8, 28, 56, 70, 56, 28, 8, 1], [1, 9, 36, 84, 126, 126, 84, 36, 9, 1]]",false
+pascals-triangle,[12],"[[1], [1, 1], [1, 2, 1], [1, 3, 3, 1], [1, 4, 6, 4, 1], [1, 5, 10, 10, 5, 1], [1, 6, 15, 20, 15, 6, 1], [1, 7, 21, 35, 35, 21, 7, 1], [1, 8, 28, 56, 70, 56, 28, 8, 1], [1, 9, 36, 84, 126, 126, 84, 36, 9, 1], [1, 10, 45, 120, 210, 252, 210, 120, 45, 10, 1], [1, 11, 55, 165, 330, 462, 462, 330, 165, 55, 11, 1]]",false
+coin-change,"[[1, 2, 5], 11]",3,true
+coin-change,"[[2], 3]",-1,true
+coin-change,"[[1], 0]",0,false
+coin-change,"[[1], 7]",7,false
+coin-change,"[[1, 3, 4], 6]",2,false
+coin-change,"[[2, 5, 10, 1], 27]",4,false
+coin-change,"[[186, 419, 83, 408], 6249]",20,false
+coin-change,"[[5], 9]",-1,false
+coin-change,"[[7, 11], 100]",12,false
+rotate-array,"[[1, 2, 3, 4, 5], 2]","[4, 5, 1, 2, 3]",true
+rotate-array,"[[1, 2, 3], 0]","[1, 2, 3]",true
+rotate-array,"[[], 3]",[],false
+rotate-array,"[[1], 5]",[1],false
+rotate-array,"[[1, 2], 3]","[2, 1]",false
+rotate-array,"[[1, 2, 3, 4], 4]","[1, 2, 3, 4]",false
+rotate-array,"[[1, 2, 3, 4], 6]","[3, 4, 1, 2]",false
+rotate-array,"[[-1, -100, 3, 99], 2]","[3, 99, -1, -100]",false
+rotate-array,"[[1, 2, 3, 4, 5, 6, 7], 10]","[5, 6, 7, 1, 2, 3, 4]",false
+edit-distance,"[""horse"", ""ros""]",3,true
+edit-distance,"[""intention"", ""execution""]",5,true
+edit-distance,"["""", """"]",0,false
+edit-distance,"["""", ""abc""]",3,false
+edit-distance,"[""abc"", """"]",3,false
+edit-distance,"[""same"", ""same""]",0,false
+edit-distance,"[""kitten"", ""sitting""]",3,false
+edit-distance,"[""sunday"", ""saturday""]",3,false
+edit-distance,"[""keebloom"", ""bloom""]",3,false
+trapping-rain-water,"[[0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1]]",6,true
+trapping-rain-water,"[[4, 2, 0, 3, 2, 5]]",9,true
+trapping-rain-water,[[]],0,false
+trapping-rain-water,"[[1, 2, 3]]",0,false
+trapping-rain-water,"[[3, 2, 1]]",0,false
+trapping-rain-water,"[[2, 0, 2]]",2,false
+trapping-rain-water,"[[5, 5, 5]]",0,false
+trapping-rain-water,"[[4, 2, 3]]",1,false
+trapping-rain-water,"[[9, 6, 8, 8, 5, 6, 3]]",3,false
+largest-rectangle,"[[2, 1, 5, 6, 2, 3]]",10,true
+largest-rectangle,"[[2, 4]]",4,true
+largest-rectangle,[[]],0,false
+largest-rectangle,[[5]],5,false
+largest-rectangle,"[[1, 1, 1, 1]]",4,false
+largest-rectangle,"[[1, 2, 3, 4, 5]]",9,false
+largest-rectangle,"[[5, 4, 3, 2, 1]]",9,false
+largest-rectangle,"[[0, 9]]",9,false
+largest-rectangle,"[[6, 7, 5, 2, 4, 5, 9, 3]]",16,false
+sliding-window-maximum,"[[1, 3, -1, -3, 5, 3, 6, 7], 3]","[3, 3, 5, 5, 6, 7]",true
+sliding-window-maximum,"[[1], 1]",[1],true
+sliding-window-maximum,"[[1, -1], 1]","[1, -1]",false
+sliding-window-maximum,"[[9, 8, 7, 6], 2]","[9, 8, 7]",false
+sliding-window-maximum,"[[1, 2, 3, 4], 4]",[4],false
+sliding-window-maximum,"[[4, 4, 4, 4], 2]","[4, 4, 4]",false
+sliding-window-maximum,"[[7, 2, 4], 2]","[7, 4]",false
+sliding-window-maximum,"[[1, 3, 1, 2, 0, 5], 3]","[3, 3, 2, 5]",false
+sliding-window-maximum,"[[-7, -8, 7, 5, 7, 1, 6, 0], 4]","[7, 7, 7, 7, 7]",false
+longest-increasing-subsequence,"[[10, 9, 2, 5, 3, 7, 101, 18]]",4,true
+longest-increasing-subsequence,"[[0, 1, 0, 3, 2, 3]]",4,true
+longest-increasing-subsequence,[[]],0,false
+longest-increasing-subsequence,[[7]],1,false
+longest-increasing-subsequence,"[[7, 7, 7, 7]]",1,false
+longest-increasing-subsequence,"[[1, 2, 3, 4, 5]]",5,false
+longest-increasing-subsequence,"[[5, 4, 3, 2, 1]]",1,false
+longest-increasing-subsequence,"[[4, 10, 4, 3, 8, 9]]",3,false
+longest-increasing-subsequence,"[[3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5]]",4,false
+n-queens-count,[4],2,true
+n-queens-count,[1],1,true
+n-queens-count,[2],0,false
+n-queens-count,[3],0,false
+n-queens-count,[5],10,false
+n-queens-count,[6],4,false
+n-queens-count,[7],40,false
+n-queens-count,[8],92,false
+n-queens-count,[9],352,false
+minimum-window-substring,"[""ADOBECODEBANC"", ""ABC""]","""BANC""",true
+minimum-window-substring,"[""a"", ""a""]","""a""",true
+minimum-window-substring,"[""a"", ""aa""]","""""",false
+minimum-window-substring,"[""a"", ""b""]","""""",false
+minimum-window-substring,"["""", ""a""]","""""",false
+minimum-window-substring,"[""ab"", ""b""]","""b""",false
+minimum-window-substring,"[""aaflslflsldkalskaaa"", ""aaa""]","""aaa""",false
+minimum-window-substring,"[""bba"", ""ab""]","""ba""",false
+minimum-window-substring,"[""cabwefgewcwaefgcf"", ""cae""]","""cwae""",false
+longest-valid-parentheses,"["")()())""]",4,true
+longest-valid-parentheses,"[""(()""]",2,true
+longest-valid-parentheses,"[""""]",0,false
+longest-valid-parentheses,"[""(""]",0,false
+longest-valid-parentheses,"["")""]",0,false
+longest-valid-parentheses,"[""()""]",2,false
+longest-valid-parentheses,"[""()(()""]",2,false
+longest-valid-parentheses,"[""()(())""]",6,false
+longest-valid-parentheses,"[""(()())(()""]",6,false
