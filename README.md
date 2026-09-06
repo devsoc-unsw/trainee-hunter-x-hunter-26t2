@@ -12,6 +12,8 @@ Run each of these in its own terminal:
 ```sh
 # 1. just the database in docker
 docker compose up database
+# 1.1 run separate terminal for psql shell
+docker exec -it trainee-hunter-database-1 psql -U app -d trainee_hunter
 
 # 2. the api - http://localhost:8000/docs lists every route
 cd backend
