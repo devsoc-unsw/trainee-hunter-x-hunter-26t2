@@ -5,3 +5,87 @@ two-sum,Two Sum,easy,two_sum,"Given a list of numbers and a target, return the i
 reverse-string,Reverse String,easy,reverse_string,"Given a string, return it reversed.","def reverse_string(s):
     pass
 "
+sum-of-evens,Sum Of Evens,easy,sum_of_evens,"Given a list of integers, return the sum of only the even ones. Zero counts as even, negative numbers count too, and the sum of an empty list is 0.","def sum_of_evens(nums):
+    pass
+"
+count-vowels,Count Vowels,easy,count_vowels,"Given a string, return how many vowels it contains. The vowels are a, e, i, o and u, in either upper or lower case. The letter y does not count.","def count_vowels(s):
+    pass
+"
+fizz-buzz,Fizz Buzz,easy,fizz_buzz,"Given a number n, return a list of strings for the numbers 1 to n. A number divisible by 3 becomes 'Fizz', one divisible by 5 becomes 'Buzz', one divisible by both becomes 'FizzBuzz', and anything else becomes the number itself as a string.","def fizz_buzz(n):
+    pass
+"
+palindrome-check,Palindrome Check,easy,is_palindrome,"Return True if the string reads the same forwards and backwards, otherwise False. Ignore case, and ignore everything that isn't a letter or a digit, so 'A man, a plan, a canal: Panama' is a palindrome. The empty string is a palindrome.","def is_palindrome(s):
+    pass
+"
+fibonacci-number,Fibonacci Number,easy,fibonacci,"Return the nth Fibonacci number, counting from 0. The sequence starts 0, 1, 1, 2, 3, 5, 8, so fibonacci(0) is 0 and fibonacci(6) is 8. Every later number is the sum of the two before it.","def fibonacci(n):
+    pass
+"
+remove-duplicates,Remove Duplicates,easy,remove_duplicates,"Given a list of integers, return a new list with every duplicate removed, keeping each number in the position it first appeared. Do not sort the result.","def remove_duplicates(nums):
+    pass
+"
+merge-sorted-lists,Merge Sorted Lists,easy,merge_sorted,"Given two lists of integers that are each already sorted in ascending order, return a single sorted list holding every number from both. Duplicates are kept, so the result is always as long as the two inputs combined. Either list may be empty.","def merge_sorted(a, b):
+    pass
+"
+character-frequency,Character Frequency,easy,char_frequency,"Given a string, return a dictionary mapping each character to the number of times it appears. Every character counts, spaces included, and characters are compared exactly, so 'A' and 'a' are different keys. The empty string gives an empty dictionary.","def char_frequency(s):
+    pass
+"
+is-anagram,Is Anagram,easy,is_anagram,"Return True if the two strings are anagrams of each other, meaning one can be rearranged into the other using every character exactly once. Compare characters exactly, so case and spaces matter. Two empty strings are anagrams.","def is_anagram(a, b):
+    pass
+"
+sum-of-digits,Sum Of Digits,easy,sum_of_digits,"Given a non-negative integer, return the sum of its digits. For example 1234 gives 10. The digit sum of 0 is 0.","def sum_of_digits(n):
+    pass
+"
+longest-unique-substring,Longest Unique Substring,medium,longest_unique,"Given a string, return the length of the longest run of consecutive characters that contains no repeats. In 'abcabcbb' the answer is 3, for 'abc'. The answer for the empty string is 0.","def longest_unique(s):
+    pass
+"
+valid-parentheses,Valid Parentheses,medium,valid_parentheses,"Given a string containing only the characters ()[]{}, return True if every bracket is closed by the matching kind in the right order, otherwise False. '([])' is valid and '([)]' is not. The empty string is valid.","def valid_parentheses(s):
+    pass
+"
+maximum-subarray,Maximum Subarray,medium,max_subarray,"Given a non-empty list of integers, return the largest sum any run of one or more neighbouring numbers can make. The run has to be contiguous, and because it must hold at least one number a list of all negatives answers with its largest single number.","def max_subarray(nums):
+    pass
+"
+product-except-self,Product Except Self,medium,product_except_self,"Given a list of integers, return a list where each position holds the product of every other number in the input. For [1, 2, 3, 4] the answer is [24, 12, 8, 6]. Watch out for zeros, which is why dividing the total product is not good enough.","def product_except_self(nums):
+    pass
+"
+spiral-matrix,Spiral Matrix,medium,spiral_order,"Given a matrix as a list of rows, return every value in one flat list, read in a clockwise spiral that starts at the top left: along the top row, down the right side, back along the bottom, up the left side, then inward. The matrix need not be square, and an empty matrix gives an empty list.","def spiral_order(matrix):
+    pass
+"
+roman-to-integer,Roman To Integer,medium,roman_to_int,"Convert a valid Roman numeral into an integer. The letters are I=1, V=5, X=10, L=50, C=100, D=500 and M=1000, and they are written largest first, except that a smaller letter placed before a larger one is subtracted, so IV is 4 and CM is 900.","def roman_to_int(s):
+    pass
+"
+run-length-encoding,Run Length Encoding,medium,encode,"Compress a string by replacing each run of repeated characters with the character followed by how many times it repeated, so 'aaabbc' becomes 'a3b2c1'. Every run gets a count, including runs of one. The empty string encodes to the empty string.","def encode(s):
+    pass
+"
+pascals-triangle,Pascals Triangle,medium,pascals_triangle,"Return the first n rows of Pascal's triangle as a list of lists. Row one is [1], and every other row starts and ends with 1 with each inner value being the sum of the two values above it. When n is 0 the answer is an empty list.","def pascals_triangle(n):
+    pass
+"
+coin-change,Coin Change,medium,coin_change,"Given a list of coin values and a target amount, return the smallest number of coins that add up to exactly that amount. You have an unlimited supply of each coin. Return -1 when the amount cannot be made, and 0 when the amount is 0. Being greedy and always taking the largest coin does not always work.","def coin_change(coins, amount):
+    pass
+"
+rotate-array,Rotate Array,medium,rotate_array,"Return a new list with the numbers rotated k places to the right, so the last k numbers move to the front. Rotating [1, 2, 3, 4, 5] by 2 gives [4, 5, 1, 2, 3]. k is never negative but can be larger than the list, and the list itself may be empty.","def rotate_array(nums, k):
+    pass
+"
+edit-distance,Edit Distance,hard,edit_distance,"Return the smallest number of single-character edits that turn the first string into the second. The allowed edits are inserting a character, deleting one, and replacing one with another. Turning 'horse' into 'ros' takes 3.","def edit_distance(a, b):
+    pass
+"
+trapping-rain-water,Trapping Rain Water,hard,trap_water,"Each number in the list is the height of a bar one unit wide, standing side by side. After rain, water settles in the dips between taller bars. Return how many units of water are trapped in total. Water above a position is limited by the tallest bar to its left and the tallest to its right, whichever is shorter.","def trap_water(heights):
+    pass
+"
+largest-rectangle,Largest Rectangle,hard,largest_rectangle,"Each number is the height of a bar one unit wide in a histogram. Return the area of the largest rectangle that fits entirely inside the bars. A rectangle spanning several bars is limited by the shortest bar it covers, so [2, 1, 5, 6, 2, 3] answers 10, from the two bars of height 5 and 6.","def largest_rectangle(heights):
+    pass
+"
+sliding-window-maximum,Sliding Window Maximum,hard,sliding_window_max,"A window k numbers wide slides across the list one step at a time. Return a list holding the largest number inside the window at each position, starting from the window at the very left. k is at least 1 and never larger than the list, so the answer always has len(nums) - k + 1 entries.","def sliding_window_max(nums, k):
+    pass
+"
+longest-increasing-subsequence,Longest Increasing Subsequence,hard,longest_increasing,"Return the length of the longest strictly increasing subsequence. The numbers you pick must stay in their original order but need not be next to each other, and each must be strictly larger than the one before. The answer for an empty list is 0.","def longest_increasing(nums):
+    pass
+"
+n-queens-count,N Queens Count,hard,count_queens,"Return how many ways n queens can be placed on an n by n chessboard so that no two attack each other. Queens attack along any row, column or diagonal. There is 1 way on a 1 by 1 board and no way at all on a 2 by 2 or 3 by 3 board.","def count_queens(n):
+    pass
+"
+minimum-window-substring,Minimum Window Substring,hard,min_window,"Return the shortest run of consecutive characters in s that contains every character of t, counting repeats, so if t has two a's the window needs two a's. Extra characters in the window are fine. Return the empty string when no such window exists, and if two windows tie on length return the one that starts first.","def min_window(s, t):
+    pass
+"
+longest-valid-parentheses,Longest Valid Parentheses,hard,longest_valid_parentheses,"Given a string of only ( and ) characters, return the length of the longest run of consecutive characters that is properly balanced. In ')()())' the answer is 4, from the '()()' in the middle. The answer is 0 when nothing balances.","def longest_valid_parentheses(s):
+    pass
+"
